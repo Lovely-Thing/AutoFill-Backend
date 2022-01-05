@@ -4,6 +4,8 @@ from django.db import models
 from django.conf import settings
 import stripe
 
+
+# User management
 class UserManager(BaseUserManager):
   
     def create_user(self, email, password=None):
@@ -41,6 +43,7 @@ class UserManager(BaseUserManager):
         user.customer_id = customer.id
         user.save()
         return user
+
 
 class User(AbstractBaseUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

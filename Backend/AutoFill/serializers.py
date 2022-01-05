@@ -27,7 +27,7 @@ class UserLoginSerializer(TokenObtainPairSerializer):
             data['access_token_expires_in'] = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
             data['refresh_token_expires_in'] = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
             data['email']= user.email
-            data['userstatus'] = user.status
+            data['userstatus'] = user.userstatus
             update_last_login(None, user)
         except User.DoesNotExist:
             raise serializers.ValidationError(
