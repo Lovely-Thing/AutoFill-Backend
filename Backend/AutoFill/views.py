@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 # from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from Backend.AutoFill.serializers import UserLoginSerializer, UserRegistrationSerializer
-from Backend.AutoFill.models import User, SendMailSettingModel
+from Backend.AutoFill.models import User, SendMailSettingModel, StopLinkSettingModel
 from django.db.models import Q
 # from django.db import connection
 from rest_framework.views import APIView
@@ -192,7 +192,30 @@ class SendMailSetting(APIView):
         }
         return Response(response, status=status_code)
 
+class AddStopLinks(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):        
+        user = request.user
+        data = request.data 
 
+        for d in data: 
+            StopLinkSettingModel.objects.create(
+                name = d['corporate_name'],
+                mailaddress = d['mailaddress'],
+                contact_url = d['contact_url'],
+                site_url = d['site_url'],
+                phone_num = d['phone'],
+                auto_manual =  "手動", 
+                user = user,            
+            )
+
+        status_code = status.HTTP_201_CREATED
+        response = {
+            'success': 'True',
+            'status code': status_code,
+            'type': 'User registered  successfully',
+        }
+        return Response(response, status=status_code)
 
 def random_with_N_digits(n):
     range_start = 10**(n-1)

@@ -109,3 +109,14 @@ class SendMailSettingModel(models.Model):
     username =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
     userpwd =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='send_mail_setting')
+
+
+class StopLinkSettingModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) 
+    name =  models.CharField(max_length=50, unique=False, blank=True, null=True)
+    mailaddress =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
+    contact_url =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
+    site_url =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
+    phone_num =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
+    auto_manual =  models.CharField(max_length=50, unique=False, blank=True, null=True)  
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stop_link_setting')
