@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 # from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from Backend.AutoFill.serializers import UserLoginSerializer, UserRegistrationSerializer
-from Backend.AutoFill.models import User, SendMailSettingModel, StopLinkSettingModel
+from Backend.AutoFill.models import User, SendMailSettingModel, StopLinkSettingModel, DmClickedCountModel, MailDeliveryStopTextsModel, \
+    MesurmentMethodSettingModel
 from django.db.models import Q
 # from django.db import connection
 from rest_framework.views import APIView
@@ -21,6 +22,7 @@ from django.core.files.storage import FileSystemStorage
 import stripe
 from django.core.mail import send_mail
 from random import randint
+from smtplib import SMTP_SSL, SMTP_SSL_PORT
 
 
 class UserRegisterView(CreateAPIView):
@@ -36,15 +38,15 @@ class UserRegisterView(CreateAPIView):
         user.verificationcode = verificationCode
         user.save()
         print(verificationCode)
-        # subject = '正常に登録しました。'
-        # message = '検証コード' + str(verificationCode)
+        subject = '正常に登録しました。'
+        message = '検証コード' + str(verificationCode)
 
-        # send_mail_to(user.email,subject, message)
+        send_mail_to(data['email'] , subject, message)
         status_code = status.HTTP_201_CREATED
         response = {
             'success': 'true',
             'status code': status_code, 
-            'email':user.email,
+            'email': data['email'],
             'type': 'User registered  successfully',
         }
         return Response(response, status=status_code)
@@ -216,6 +218,176 @@ class AddStopLinks(APIView):
             'type': 'User registered  successfully',
         }
         return Response(response, status=status_code)
+
+class DmClickedCountCalculation(APIView):
+    permission_classes = (AllowAny,)
+    def post(self, request):   
+        data = request.data
+        if data['mail_id'] !=None:
+            dmcountdata = DmClickedCountModel.objects.filter(Q(mailid=data['mail_id'])).first()
+            if dmcountdata :
+                dmcountdata.clickednum = dmcountdata.clickednum + 1
+                dmcountdata.save()
+            else:
+                DmClickedCountModel.objects.create(
+                    clickednum = 1,
+                    mailid = data['mail_id']          
+                )
+
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': 'True',
+                'status code': status_code,
+                'type': 'User registered  successfully',
+            }
+            return Response(response, status=status_code)
+
+
+class Maildeliverystoptext(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request): 
+        user = request.user
+        data = request.data 
+
+        mailstoptext = MailDeliveryStopTextsModel.objects.filter(Q(user=user)).first()
+        if mailstoptext :
+            mailstoptext.text2000 = data['text2000']
+            mailstoptext.text1000 = data['text1000']
+            mailstoptext.text500 = data['text500']
+            mailstoptext.text250 = data['text250']
+            mailstoptext.text100 = data['text100']
+            mailstoptext.save()
+        else:
+            MailDeliveryStopTextsModel.objects.create(
+                text2000 = data['text2000'],
+                text1000 = data['text1000'],
+                text500 = data['text500'],
+                text250 = data['text250'],
+                text100 = data['text100'],
+                user = user       
+            )
+
+        status_code = status.HTTP_201_CREATED
+        response = {
+            'success': 'True',
+            'status code': status_code,
+            'type': 'User registered  successfully',
+        }
+        return Response(response, status=status_code)
+
+class MesurmentMethodSet(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request): 
+        user = request.user
+        data = request.data 
+
+        method = MesurmentMethodSettingModel.objects.filter(Q(user=user)).first()
+        if method :
+            method.mesurment_method = data['mesurment_method'] 
+            method.save()
+        else:
+            MesurmentMethodSettingModel.objects.create(
+                mesurment_method = data['mesurment_method'], 
+                user = user       
+            )
+
+        status_code = status.HTTP_201_CREATED
+        response = {
+            'success': 'True',
+            'status code': status_code,
+            'type': 'User registered  successfully',
+        }
+        return Response(response, status=status_code)
+
+
+class Getmesurmentmethodsetting(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request): 
+        user = request.user 
+
+        method = MesurmentMethodSettingModel.objects.filter(Q(user=user)).first()
+        print(method)
+        if method :
+            status_code = status.HTTP_200_OK
+            response = {
+                'success': 'True',
+                'method':method.mesurment_method,
+                'status code': status_code,
+                'type': 'User registered  successfully',
+            }
+            return Response(response, status=status_code)
+
+        else: 
+            status_code = status.HTTP_200_OK
+            response = {
+                'success': 'True',
+                'method': 1,
+                'status code': status_code,
+                'type': 'User registered  successfully',
+            }
+            return Response(response, status=status_code)
+
+class TestSendMail(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        SMTP_HOST = 'mail.example.com'
+        SMTP_USER = 'someone@example.com'
+        SMTP_PASS = 'Secret!'
+
+        # Craft the email by hand
+        from_email = 'My name <someone@example.com>'  # or simply the email address
+        to_emails = ['nanodano@devdungeon.com', 'admin@devdungeon.com']
+        body = "Hello, world!"
+        headers = f"From: {from_email}\r\n"
+        headers += f"To: {', '.join(to_emails)}\r\n" 
+        headers += f"Subject: Hello\r\n"
+        email_message = headers + "\r\n" + body  # Blank line needed between headers and body
+
+        # Connect, authenticate, and send mail
+        smtp_server = SMTP_SSL(SMTP_HOST, port=SMTP_SSL_PORT)
+        smtp_server.set_debuglevel(1)  # Show SMTP server interactions
+        smtp_server.login(SMTP_USER, SMTP_PASS)
+        smtp_server.sendmail(from_email, to_emails, email_message)
+
+        # Disconnect
+        smtp_server.quit()
+
+
+
+
+
+    # def send_mail(subject='', text='', sender='', to=''):
+    #     M = poplib.POP3(settings.EMAIL_HOST)
+    #     M.user(settings.EMAIL_HOST_USER)
+    #     M.pass_(settings.EMAIL_HOST_PASSWORD)
+    #     headers = "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n" % (sender,
+    #     to, subject)
+    #     message = headers + text
+    #     mailServer = smtplib.SMTP(settings.EMAIL_HOST)
+    #     mailServer.sendmail(sender, to, message)
+    #     mailServer.quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+        status_code = status.HTTP_200_OK
+        response = {
+            'success': 'True',
+            'method': 1,
+            'status code': status_code,
+            'type': 'User registered  successfully',
+        }
+        return Response(response, status=status_code)
+
 
 def random_with_N_digits(n):
     range_start = 10**(n-1)

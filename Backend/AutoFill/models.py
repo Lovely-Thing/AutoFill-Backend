@@ -1,5 +1,6 @@
 import uuid
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.core import mail
 from django.db import models
 from django.conf import settings
 import stripe
@@ -120,3 +121,23 @@ class StopLinkSettingModel(models.Model):
     phone_num =  models.CharField(max_length=50, unique=False, blank=True, null=True) 
     auto_manual =  models.CharField(max_length=50, unique=False, blank=True, null=True)  
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stop_link_setting')
+
+class DmClickedCountModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) 
+    clickednum =  models.IntegerField(default=0)
+    mailid = models.CharField(max_length=50, unique=False, blank=True, null=True) 
+
+class MailDeliveryStopTextsModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  
+    text2000 =  models.CharField(max_length=50, unique=False, blank=True, null=True)   
+    text1000 =  models.CharField(max_length=50, unique=False, blank=True, null=True)   
+    text500 =  models.CharField(max_length=50, unique=False, blank=True, null=True)   
+    text250 =  models.CharField(max_length=50, unique=False, blank=True, null=True)   
+    text100 =  models.CharField(max_length=50, unique=False, blank=True, null=True)   
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stop_text_setting')
+
+class MesurmentMethodSettingModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  
+    mesurment_method =  models.IntegerField(default=0)    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mesurment_setting')
+
