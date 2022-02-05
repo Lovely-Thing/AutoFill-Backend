@@ -44,3 +44,41 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         user.save()
         return user
+
+
+
+
+
+class AdminLoginSerializer(TokenObtainPairSerializer):
+    email = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=128, write_only=True)
+    token = serializers.CharField(max_length=255, read_only=True)
+    refresh = serializers.CharField(max_length=255, read_only=True)
+    userstatus = serializers.IntegerField(read_only=True)
+    def validate(self, data):
+        email = data.get("email", None)
+        password = data.get("password", None)
+        user = authenticate(email=email, password=password)
+        if user is None:
+            raise serializers.ValidationError(
+                'A user with this email and password is not found.'
+            )
+        if not user.is_superuser:
+            raise serializers.ValidationError(
+                'A user with this email and password is not admin.'
+            )
+        try:
+            data = {}
+            refresh = self.get_token(user)
+            data['refresh'] = str(refresh)
+            data['token'] = str(refresh.access_token)
+            data['access_token_expires_in'] = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+            data['refresh_token_expires_in'] = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+            data['email']= user.email
+            data['userstatus'] = user.userstatus
+            update_last_login(None, user)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                'User with given email and password does not exists'
+            )
+        return data

@@ -193,3 +193,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'rest_framework:login'
 LOGIN_REDIRECT_URL = "/"
 AUTH_USER_MODEL = 'AutoFill.User'
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+EMAIL_HOST = 'sv5018.xserver.jp'
+EMAIL_HOST_USER = 'support@izanagi.ai'
+EMAIL_HOST_PASSWORD = 'nRGwB75v!xNY'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'IZANAGI <no-reply@izanagi.ai>'
+
+
+# Stripe
+
+STRIPE_PUBLIC_KEY = 'pk_test_51KNc0UEXXrsNl79EX8Vhzk7mzIiF1qsZvQXGdcKW08nkwPYtIAXp7VwpDEF0Qkjk6UyVsKgGRzrOqVUfgniP9qdq009Vd7CUlm'
+STRIPE_SECRET_KEY = 'sk_test_51KNc0UEXXrsNl79EpdmsS6DKSPzH0eezZl9dPlNloQY8CsOxigNiq2YI9yqXh9Sn9L2J632DcUozMk87jWIWaqUh00SLr6xCQ4'
+STRIPE_WEBHOOK_KEY = 'whsec_Hwpwn2fx7zahNesaodaTzLdEe8Puninv'
+
+LIST_PRICE_ID = 'price_1KNdIHEXXrsNl79E3CmPLWFX'
+ENTERPISE_PRICE_ID = 'price_1KNdHAEXXrsNl79EErfb83Ss'
+PRO_PRICE_ID = 'price_1KNdGkEXXrsNl79E21chmPo6'
+STANDARD_PRICE_ID = 'price_1KNdGHEXXrsNl79EXGjhgefD'
+INITIAL_PRICE_ID = 'price_1KNdFlEXXrsNl79EGMrL7a16'
+ECO_PRICE_ID = 'price_1KNd8tEXXrsNl79E2xbjdiSO'
