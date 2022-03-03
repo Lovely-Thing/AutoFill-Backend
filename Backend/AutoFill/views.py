@@ -1,11 +1,17 @@
-# from crypt import methods
+from gettext import find
+from inspect import isframe
+from turtle import st 
+from anticaptchaofficial.recaptchav3proxyless import *
+from anticaptchaofficial.hcaptchaproxyless import *
+from anticaptchaofficial.recaptchav2proxyless import *
 from cgi import print_directory
 import email
 from optparse import Option
 from pickle import FALSE, NONE
 from select import select
 from sys import flags
-from traceback import print_tb
+from traceback import print_tb 
+# from types import NoneType
 from rest_framework import permissions
 # from Akushu.settings import DATABASES, MEDIA_ROOT
 from rest_framework import status
@@ -40,15 +46,17 @@ from bs4 import BeautifulSoup
 from mechanize import Browser 
 import time
 import random
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 import threading as th  
 from django.contrib.sessions.backends.db import SessionStore 
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.select import Select
 from django.db.models import Sum
+import numpy as np  
+import traceback 
 
+
+ANTI_CAPTCHA_API_KEY = "360de08d894d78cfd722eedaa4e11204"
+NoneType = type(None)
+driver_lists = []
 
 class UserRegisterView(CreateAPIView):
     serializer_class = UserRegistrationSerializer
@@ -71,7 +79,7 @@ class UserRegisterView(CreateAPIView):
             'success': 'true',
             'status code': status_code, 
             'email': data['email'],
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -251,7 +259,7 @@ class SendMailSetting(APIView):
         response = {
             'success': 'True',
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -276,7 +284,7 @@ class AddStopLinks(APIView):
         response = {
             'success': 'True',
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -299,7 +307,7 @@ class DmClickedCountCalculation(APIView):
             response = {
                 'success': 'True',
                 'status code': status_code,
-                'type': 'User registered  successfully',
+                'type': 'successfully',
             }
             return Response(response, status=status_code)
 
@@ -332,7 +340,7 @@ class Maildeliverystoptext(APIView):
         response = {
             'success': 'True',
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -372,7 +380,7 @@ class MesurmentMethodSet(APIView):
             'success': 'True',
             'status code': status_code,
             'register_statu': register_statu,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -392,7 +400,7 @@ class Getmesurmentmethodsetting(APIView):
                 'method':method.mesurment_method,
                 'corporate_homepage':user.corporate_homepage,
                 'status code': status_code,
-                'type': 'User registered  successfully',
+                'type': 'successfully',
             }
             return Response(response, status=status_code)
 
@@ -403,7 +411,7 @@ class Getmesurmentmethodsetting(APIView):
                 'method': 1,
                 'corporate_homepage':user.corporate_homepage,
                 'status code': status_code,
-                'type': 'User registered  successfully',
+                'type': 'successfully',
             }
             return Response(response, status=status_code)
 
@@ -415,6 +423,90 @@ class DMtextSet(APIView):
     def post(self, request): 
         user = request.user
         data = request.data  
+
+        data['text1000'] = data['text1000'].replace("{company-type}", str(user.company_type))
+        data['text1000'] = data['text1000'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text1000'] = data['text1000'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text1000'] = data['text1000'].replace("{client-country}", str(user.corporate_country))
+        data['text1000'] = data['text1000'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text1000'] = data['text1000'].replace("{client-city}", str(user.corporate_city))
+        data['text1000'] = data['text1000'].replace("{client-address}", str(user.corporate_address))
+        data['text1000'] = data['text1000'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text1000'] = data['text1000'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text1000'] = data['text1000'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text1000'] = data['text1000'].replace("{client-phone}", str(user.corporate_phone))
+        data['text1000'] = data['text1000'].replace("{client-fax}", str(user.corporate_fax))
+        data['text1000'] = data['text1000'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text1000'] = data['text1000'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text1000'] = data['text1000'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text1000'] = data['text1000'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text1000'] = data['text1000'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text1000'] = data['text1000'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text1000'] = data['text1000'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text1000'] = data['text1000'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text500'] = data['text500'].replace("{company-type}", str(user.company_type))
+        data['text500'] = data['text500'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text500'] = data['text500'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text500'] = data['text500'].replace("{client-country}", str(user.corporate_country))
+        data['text500'] = data['text500'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text500'] = data['text500'].replace("{client-city}", str(user.corporate_city))
+        data['text500'] = data['text500'].replace("{client-address}", str(user.corporate_address))
+        data['text500'] = data['text500'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text500'] = data['text500'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text500'] = data['text500'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text500'] = data['text500'].replace("{client-phone}", str(user.corporate_phone))
+        data['text500'] = data['text500'].replace("{client-fax}", str(user.corporate_fax))
+        data['text500'] = data['text500'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text500'] = data['text500'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text500'] = data['text500'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text500'] = data['text500'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text500'] = data['text500'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text500'] = data['text500'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text500'] = data['text500'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text500'] = data['text500'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text250'] = data['text250'].replace("{company-type}", str(user.company_type))
+        data['text250'] = data['text250'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text250'] = data['text250'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text250'] = data['text250'].replace("{client-country}", str(user.corporate_country))
+        data['text250'] = data['text250'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text250'] = data['text250'].replace("{client-city}", str(user.corporate_city))
+        data['text250'] = data['text250'].replace("{client-address}", str(user.corporate_address))
+        data['text250'] = data['text250'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text250'] = data['text250'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text250'] = data['text250'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text250'] = data['text250'].replace("{client-phone}", str(user.corporate_phone))
+        data['text250'] = data['text250'].replace("{client-fax}", str(user.corporate_fax))
+        data['text250'] = data['text250'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text250'] = data['text250'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text250'] = data['text250'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text250'] = data['text250'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text250'] = data['text250'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text250'] = data['text250'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text250'] = data['text250'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text250'] = data['text250'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text100'] = data['text100'].replace("{company-type}", str(user.company_type))
+        data['text100'] = data['text100'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text100'] = data['text100'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text100'] = data['text100'].replace("{client-country}", str(user.corporate_country))
+        data['text100'] = data['text100'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text100'] = data['text100'].replace("{client-city}", str(user.corporate_city))
+        data['text100'] = data['text100'].replace("{client-address}", str(user.corporate_address))
+        data['text100'] = data['text100'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text100'] = data['text100'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text100'] = data['text100'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text100'] = data['text100'].replace("{client-phone}", str(user.corporate_phone))
+        data['text100'] = data['text100'].replace("{client-fax}", str(user.corporate_fax))
+        data['text100'] = data['text100'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text100'] = data['text100'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text100'] = data['text100'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text100'] = data['text100'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text100'] = data['text100'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text100'] = data['text100'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text100'] = data['text100'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text100'] = data['text100'].replace("{staff-phone}", str(user.charger_phone)) 
 
         DMtextSetModel.objects.create(
             title50 = data['title50'], 
@@ -442,15 +534,60 @@ class GetDMAlltextdata(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request): 
         user = request.user 
-
+        
+        userdata = []
+        if(user.coporate_name != None):
+            userdata.append({"data": user.coporate_name, "name":"法人名", "mark":"client-name"})        
+        if(user.company_type != None):
+            userdata.append({"data": user.company_type, "name":"会社の種類", "mark":"company-type"})
+        if(user.corporate_furigana != None):
+            userdata.append({"data": user.corporate_furigana, "name":"法人ふりがな", "mark":"client-frigana"})
+        if(user.corporate_zipcode != None):
+            userdata.append({"data": user.corporate_zipcode, "name":"法人郵便番号", "mark":"client-postcode"})
+        if(user.corporate_country != None):
+            userdata.append({"data": user.corporate_country, "name":"法人国", "mark":"client-country"})
+        if(user.corporate_prefecture != None):
+            userdata.append({"data": user.corporate_prefecture, "name":"法人都道府県", "mark":"client-prefecture"})
+        if(user.corporate_city != None):
+            userdata.append({"data": user.corporate_city, "name":"法人市区町村", "mark":"client-city"})
+        if(user.corporate_address != None):
+            userdata.append({"data": user.corporate_address, "name":"法人住所枝番", "mark":"client-address"})
+        if(user.corporate_building_name != None):
+            userdata.append({"data": user.corporate_building_name, "name":"法人住所建物名", "mark":"client-buildingname"})
+        if(user.corporate_address_room_number != None):
+            userdata.append({"data": user.corporate_address_room_number, "name":"法人住所部屋番号", "mark":"client-roomnumber"})
+        if(user.corporate_estable_date != None):
+            userdata.append({"data": user.corporate_estable_date, "name":"法人住設立年", "mark":"client-establishdate"})
+        if(user.corporate_phone != None):
+            userdata.append({"data": user.corporate_phone, "name":"法人電話番号", "mark":"client-phone"})
+        if(user.corporate_fax != None):
+            userdata.append({"data": user.corporate_fax, "name":"法人FAX番号", "mark":"client-fax"})
+        if(user.corporate_mail != None):
+            userdata.append({"data": user.corporate_mail, "name":"法人メールアドレス", "mark":"client-mailaddress"})
+        if(user.corporate_homepage != None):
+            userdata.append({"data": user.corporate_homepage, "name":"法人ホームページ", "mark":"client-homepage"})
+        if(user.firstname_of_charger != None):
+            userdata.append({"data": user.firstname_of_charger, "name":"担当者姓", "mark":"staff-firstname"})
+        if(user.lastname_of_charger != None):
+            userdata.append({"data": user.lastname_of_charger, "name":"担当者名", "mark":"staff-lastname"})
+        if(user.firstname_of_charger_firagana != None):
+            userdata.append({"data": user.firstname_of_charger_firagana, "name":"担当者姓ふりがな", "mark":"staff-friganafirstname"})
+        if(user.lastname_of_charger_firagana != None):
+            userdata.append({"data": user.lastname_of_charger_firagana, "name":"担当者名ふりがな", "mark":"staff-friganalastname"})
+        if(user.charger_prefecture != None):
+            userdata.append({"data": user.charger_prefecture, "name":"担当者部署", "mark":"staff-address"})
+        if(user.charger_phone != None):
+            userdata.append({"data": user.charger_phone, "name":"担当電話番号", "mark":"staff-phone"})
+         
         alldmtext = DMtextSetModel.objects.filter(Q(user=user)).values('pk', 'title50', 'title25', 'title10', 'text1000', 'text500', 'text250', 'text100', 'register_date', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count' )
         
         status_code = status.HTTP_200_OK
         response = {
-            'success': 'True',
-            'dmdata': alldmtext,
-            'status code': status_code,
-            'type': 'User registered  successfully',
+            'success':          'True',
+            'dmdata':           alldmtext,
+            'userdata':         userdata,
+            'status code':      status_code,
+            'type':             'successfully',
         }
         return Response(response, status=status_code)
 
@@ -479,7 +616,7 @@ class Copydmtextrows(APIView):
         response = {
             'success': 'True', 
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
 
         return Response(response, status=status_code)
@@ -499,7 +636,7 @@ class Deletedmtextrows(APIView):
         response = {
             'success': 'True', 
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
 
         return Response(response, status=status_code)
@@ -511,7 +648,92 @@ class EditedDmtextSave(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request): 
         user = request.user 
-        data = request.data
+        data = request.data   
+        data['text1000'] = data['text1000'].replace("{company-type}", str(user.company_type))
+        data['text1000'] = data['text1000'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text1000'] = data['text1000'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text1000'] = data['text1000'].replace("{client-country}", str(user.corporate_country))
+        data['text1000'] = data['text1000'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text1000'] = data['text1000'].replace("{client-city}", str(user.corporate_city))
+        data['text1000'] = data['text1000'].replace("{client-address}", str(user.corporate_address))
+        data['text1000'] = data['text1000'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text1000'] = data['text1000'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text1000'] = data['text1000'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text1000'] = data['text1000'].replace("{client-phone}", str(user.corporate_phone))
+        data['text1000'] = data['text1000'].replace("{client-fax}", str(user.corporate_fax))
+        data['text1000'] = data['text1000'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text1000'] = data['text1000'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text1000'] = data['text1000'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text1000'] = data['text1000'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text1000'] = data['text1000'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text1000'] = data['text1000'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text1000'] = data['text1000'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text1000'] = data['text1000'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text500'] = data['text500'].replace("{company-type}", str(user.company_type))
+        data['text500'] = data['text500'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text500'] = data['text500'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text500'] = data['text500'].replace("{client-country}", str(user.corporate_country))
+        data['text500'] = data['text500'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text500'] = data['text500'].replace("{client-city}", str(user.corporate_city))
+        data['text500'] = data['text500'].replace("{client-address}", str(user.corporate_address))
+        data['text500'] = data['text500'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text500'] = data['text500'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text500'] = data['text500'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text500'] = data['text500'].replace("{client-phone}", str(user.corporate_phone))
+        data['text500'] = data['text500'].replace("{client-fax}", str(user.corporate_fax))
+        data['text500'] = data['text500'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text500'] = data['text500'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text500'] = data['text500'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text500'] = data['text500'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text500'] = data['text500'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text500'] = data['text500'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text500'] = data['text500'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text500'] = data['text500'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text250'] = data['text250'].replace("{company-type}", str(user.company_type))
+        data['text250'] = data['text250'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text250'] = data['text250'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text250'] = data['text250'].replace("{client-country}", str(user.corporate_country))
+        data['text250'] = data['text250'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text250'] = data['text250'].replace("{client-city}", str(user.corporate_city))
+        data['text250'] = data['text250'].replace("{client-address}", str(user.corporate_address))
+        data['text250'] = data['text250'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text250'] = data['text250'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text250'] = data['text250'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text250'] = data['text250'].replace("{client-phone}", str(user.corporate_phone))
+        data['text250'] = data['text250'].replace("{client-fax}", str(user.corporate_fax))
+        data['text250'] = data['text250'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text250'] = data['text250'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text250'] = data['text250'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text250'] = data['text250'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text250'] = data['text250'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text250'] = data['text250'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text250'] = data['text250'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text250'] = data['text250'].replace("{staff-phone}", str(user.charger_phone))
+
+        data['text100'] = data['text100'].replace("{company-type}", str(user.company_type))
+        data['text100'] = data['text100'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text100'] = data['text100'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text100'] = data['text100'].replace("{client-country}", str(user.corporate_country))
+        data['text100'] = data['text100'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text100'] = data['text100'].replace("{client-city}", str(user.corporate_city))
+        data['text100'] = data['text100'].replace("{client-address}", str(user.corporate_address))
+        data['text100'] = data['text100'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text100'] = data['text100'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text100'] = data['text100'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text100'] = data['text100'].replace("{client-phone}", str(user.corporate_phone))
+        data['text100'] = data['text100'].replace("{client-fax}", str(user.corporate_fax))
+        data['text100'] = data['text100'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text100'] = data['text100'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text100'] = data['text100'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text100'] = data['text100'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text100'] = data['text100'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text100'] = data['text100'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text100'] = data['text100'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text100'] = data['text100'].replace("{staff-phone}", str(user.charger_phone)) 
+
+         
         dmtextrow = DMtextSetModel.objects.filter(Q(id = data['tableID']) & Q(user = user)).first() 
         dmtextrow.title50 = data['title50']         
         dmtextrow.title25 = data['title25']         
@@ -526,7 +748,7 @@ class EditedDmtextSave(APIView):
         response = {
             'success': 'True', 
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -548,13 +770,17 @@ class GetAllDMGroupData(APIView):
                     user.corporate_address == None):
             register_statu = 0
 
+        isPayed = False
+        if(user.paydate != None and user.initial_pay_statu == 1):
+            isPayed = True
         status_code = status.HTTP_200_OK
         response = {
             'success': 'True',
             'data': data,
+            'isPayed': isPayed, 
             'register_statu': register_statu,
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
 
         return Response(response, status=status_code)
@@ -588,7 +814,7 @@ class SaveAllDMGroupData(APIView):
             'success': 'True', 
             'data': data,
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -619,7 +845,7 @@ class Deletdmgroup(APIView):
             'success': 'True', 
             'data': resdata,
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
 
         return Response(response, status=status_code)
@@ -631,25 +857,47 @@ class CsvImport(APIView):
         user = request.user 
         csvfile = request.FILES.get('csv', '') 
         fs = FileSystemStorage()
-        filename = fs.save(csvfile.name, csvfile)
-        filepath = fs.url(filename)
-        empexceldata = pd.read_excel("."+filepath)
-        
+        filename = fs.save("csvdmlist", csvfile)
+        filepath = fs.url(filename) 
+        empexceldata = pd.read_csv("."+filepath, encoding="shift-jis")
+         
         responseData = []
         i = 1
         for dbframe in empexceldata.itertuples():  
- 
+
+            cname = ""
+            cmailaddress = ""
+            ccontact_url = ""
+            csite_url = ""
+            cphone_num = ""
+
+            if(str(dbframe.企業名) != "nan"):
+                cname = dbframe.企業名
+            if(str(dbframe.メールアドレス) != "nan"):
+                cmailaddress = dbframe.メールアドレス
+            if(str(dbframe.問合せフォームURL) != "nan"):
+                ccontact_url = dbframe.問合せフォームURL
+            if(str(dbframe.サイトURL) != "nan"):
+                csite_url = dbframe.サイトURL
+            if(str(dbframe.電話番号) != "nan"):
+                cphone_num = dbframe.電話番号
+
+            
+
             responseData.append({
                 "id":i,
-                "name":dbframe.企業名, 
-                "mailaddress":dbframe.メール,
-                "contact_url":dbframe.お問合せフォームURL,
-                "site_url":dbframe.URL,
-                "phone_num":dbframe.郵便番号,
+                "name":cname, 
+                "mailaddress":cmailaddress,
+                "contact_url":ccontact_url,
+                "site_url":csite_url,
+                "phone_num":cphone_num,
                 "auto_manual":"CSV", 
-            })             
-            i = i+1 
+            }) 
 
+            i = i+1 
+ 
+
+        
         empexceldataPath = os.path.join(settings.MEDIA_ROOT, filename)
         os.remove(empexceldataPath)
         
@@ -833,6 +1081,7 @@ class GetAllDMlists(APIView):
             'success': 'True', 
             'status code': status_code,
             'data':resdata,
+            'izanagi_list':user.option_price,
             'type': 'successfully',
         }
         return Response(response, status=status_code)
@@ -981,10 +1230,9 @@ class AddDMLists(APIView):
         data = request.data 
 
         dmgroup = DMGroupModel.objects.filter(Q(id = data['groupid'])).first() 
-        print(data['method'])
+         
         if(data['method'] == '1'):            
-            for d in data['data']: 
-                print(d['corporate_name'])
+            for d in data['data']:                  
                 PerDMGroupDmListModel.objects.create(
                     name = d['corporate_name'],
                     mailaddress = d['mailaddress'],
@@ -999,8 +1247,7 @@ class AddDMLists(APIView):
         else:
             listscounts = PerDMGroupDmListModel.objects.filter(Q(dmgroup = dmgroup))                
             for listscount in listscounts:
-                listscount.delete()
-            # print(data['data'])
+                listscount.delete() 
             for d in data['data']: 
                 PerDMGroupDmListModel.objects.create(
                     name = d['corporate_name'],
@@ -1034,17 +1281,21 @@ class GetGroupAndTextPattern(APIView):
         textPatter = DMtextSetModel.objects.filter(Q(user = user)).values('pk', 'title50', 'title25', 'title10', 'text1000', 'text500', 'text250', 'text100', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count')
         method = MesurmentMethodSettingModel.objects.filter(Q(user=user)).first()
         textpattern_temp = []
+         
 
         for tp in textPatter:
+            link_url = ""
+            if method and method.click_link:
+                link_url = "\n\n\n" + method.click_link +str(tp['pk'])
             textpattern_temp.append({
                 'pk':tp['pk'],
                 'title50':tp['title50'],
                 'title25':tp['title25'],
                 'title10':tp['title10'],
-                'text1000':tp['text1000']+"\n\n\n" + method.click_link +str(tp['pk']),
-                'text500':tp['text500']+"\n\n\n" + method.click_link + str(tp['pk']),
-                'text250':tp['text250']+"\n\n\n" + method.click_link + str(tp['pk']),
-                'text100':tp['text100']+"\n\n\n" + method.click_link + str(tp['pk']),
+                'text1000':tp['text1000'] + link_url,
+                'text500':tp['text500'] + link_url,
+                'text250':tp['text250'] + link_url,
+                'text100':tp['text100'] + link_url,
                 'recent_send_date':tp['recent_send_date'],
                 'sent_count':tp['sent_count'],
                 'click_rate':tp['click_rate'],
@@ -1066,6 +1317,8 @@ class GetGroupAndTextPattern(APIView):
 
 interupt_flag = False
 total_result  = []
+process_count = 0
+process_flag  = False
 
 class GetFormData(APIView):
     permission_classes = (IsAuthenticated,)
@@ -1080,19 +1333,27 @@ class GetFormData(APIView):
         browser.set_handle_equiv(False)
         browser.set_handle_robots(False)
         browser.addheaders = [('User-agent','Mozilla/5.0 (X11; Linux x86_64; rv:18.0)Gecko/20100101 Firefox/18.0 (compatible;)'),('Accept', '*/*')]   
+
         
-        global interupt_flag, total_result 
         
+        global interupt_flag, total_result, process_count, process_flag         
+ 
         if(text_option == 1): #---------------------配信文章を選択
             if(data['send_date'] == 1): #-----------送信日時の設定
                 if(data['send_method'] == 1): #-----送信方法を選択
                     sendDMAutoMatic(data, user, tpat1)
+                    while not process_flag: 
+                        True
 
         if(text_option == 2): #---------------------配信文章を選択
             if(data['send_date'] == 1): #-----------送信日時の設定
                 if(data['send_method'] == 1): #-----送信方法を選択
                     sendDMAutoMatic(data, user, tpat1)
+                    while not process_flag:
+                        True
                     sendDMAutoMatic(data, user, tpat2)
+                    while not process_flag:
+                        True
 
         
         if(data['send_date'] == 2): #-----------送信日時の設定                     
@@ -1105,7 +1366,7 @@ class GetFormData(APIView):
         
         req_data = total_result
         total_result = []
-        interupt_flag = False
+        interupt_flag = False  
 
         timeTemp    = None
         reserTemp   = ""
@@ -1216,9 +1477,11 @@ class InterruptSendDM(APIView):
 
         return Response(response, status=status_code)
 
-
+html_strs = []
 html_str = ""
 form_datas = []
+all_form_datas = []
+site_urls = []
 site_url = ""
 
 class ManualSendDM(APIView):
@@ -1239,26 +1502,41 @@ class ManualSendDM(APIView):
             tpattern           = data['tpat2']
             sendManuallySubFunction(data, user, tpattern)        
          
-        global html_str, form_datas, site_url
-        hs =  html_str
-        fds = form_datas
-        su = site_url
+        global html_strs, all_form_datas, site_urls
+        
+        hs =  html_strs
+        fds = all_form_datas
+        su = site_urls
 
-        html_str = ""
-        form_datas = []
-        site_url = ""
+        html_strs = []
+        all_form_datas = []
+        site_urls = []
 
-        status_code = status.HTTP_201_CREATED
-        response = {
-            'success': 'True',  
-            'data': hs,
-            'form_datas':fds, 
-            'link': su,
-            'status code': status_code, 
-            'type': 'successfully'
-        }  
+         
+        if len(all_form_datas) < 0:
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': 'false',  
+                'data': hs,
+                'form_datas':fds, 
+                'link': su,
+                'status code': status_code, 
+                'type': 'successfully'
+            }  
 
-        return Response(response, status=status_code)
+            return Response(response, status=status_code)
+        else:
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': 'True',  
+                'data': hs,
+                'form_datas':fds, 
+                'link': su,
+                'status code': status_code, 
+                'type': 'successfully'
+            }  
+
+            return Response(response, status=status_code)
 
 
 
@@ -1268,6 +1546,8 @@ class WebhookView(APIView):
     def post(self, request):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         webhook_secret = settings.STRIPE_WEBHOOK_KEY
+        event_type = None 
+
         if webhook_secret:
             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
             signature = request.headers.get('stripe-signature')
@@ -1283,8 +1563,11 @@ class WebhookView(APIView):
         else:
             data = request.data['data']
             event_type = request.data['type']
-        data_object = data['object']
-        if event_type == 'invoice.payment_succeeded':
+        data_object = data['object'] 
+        print("============================")
+        print(event_type)
+        print("============================")
+        if event_type == 'invoice.payment_succeeded': 
             if data_object['billing_reason'] == 'subscription_create':
                 subscription_id = data_object['subscription']
                 payment_intent_id = data_object['payment_intent']
@@ -1301,10 +1584,16 @@ class WebhookView(APIView):
             if user: 
                 now = datetime.today() 
                 user.paydate = now
-                user.expirydate = datetime.timedelta(30)
+                user.expirydate =now + timedelta(days=30)
                 user.save()
+
         if event_type == 'invoice.payment_failed':            
             user = User.objects.filter(Q(customer_id = request.data['data']['object']['customer'])).first()
+            user.paydate = None
+            user.expirydate = None  
+            user.customer_id = None
+            user.subscription_id = None
+            user.save()
              
         if event_type == 'customer.subscription.deleted':
             user = User.objects.filter(Q(customer_id = request.data['data']['object']['customer'])).first()
@@ -1315,9 +1604,8 @@ class WebhookView(APIView):
                 user.subscription_id = None
                 user.save()
 
-        if event_type == 'payment_intent.succeeded':  
-            print("request.data['data']: ", request.data['data'])    
-            user = User.objects.filter(Q(customer_id = request.data['data']['object']['customer'])).first()
+        if event_type == 'payment_intent.succeeded':   
+            user = User.objects.filter(Q(initial_pay_id = request.data['data']['object']['id'])).first()
             if user: 
                 user.initial_pay_statu = 1 
                 user.save()
@@ -1328,22 +1616,33 @@ class WebhookView(APIView):
 class UserCreateSubscription(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
-        user = request.user
+        user = request.user 
         data = request.data
 
-        price_id = "" 
-        if(data['plan'] == 0):
-            price_id = settings.INITIAL_PRICE_ID
-        if(data['plan'] == 1):
-            price_id = settings.ECO_PRICE_ID
-        if(data['plan'] == 2):
-            price_id = settings.STANDARD_PRICE_ID
-        if(data['plan'] == 3):
-            price_id = settings.PRO_PRICE_ID
-        if(data['plan'] == 4):
-            price_id = settings.ENTERPISE_PRICE_ID
-
         stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        price_id = ""         
+
+        if user.option_price:
+            if(user.price_plan == 1):
+                price_id = settings.ECO_ADD_LIST
+            if(user.price_plan == 2):
+                price_id = settings.STANDARD_ADD_LIST
+            if(user.price_plan == 3):
+                price_id = settings.PRO_ADD_LIST
+            if(user.price_plan == 1):
+                price_id = settings.ENTERPRIZE_ADD_LIST
+        else:
+            if(user.price_plan == 1):
+                price_id = settings.ECO_PRICE_ID
+            if(user.price_plan == 2):
+                price_id = settings.STANDARD_PRICE_ID
+            if(user.price_plan == 3):
+                price_id = settings.PRO_PRICE_ID
+            if(user.price_plan == 1):
+                price_id = settings.ENTERPISE_PRICE_ID       
+
+        
         try:
             customer = stripe.Customer.create(
                 email = data['email']
@@ -1359,12 +1658,31 @@ class UserCreateSubscription(APIView):
                     payment_behavior='default_incomplete',
                     expand=['latest_invoice.payment_intent'],
                 )
+
+                onetimeClientSecret = None
+                isonetime = "no"
+
+                if(user.initial_pay_statu == 0):
+                    onetimepaymentIntents = stripe.PaymentIntent.create( 
+                        amount = 150000,
+                        currency = 'jpy',  
+                        payment_method_types = ['card'], 
+                    )                     
+                    
+                    onetimeClientSecret = onetimepaymentIntents.client_secret
+                    isonetime = "ok"
+                    user.initial_pay_id = onetimepaymentIntents.id
+                    user.save()
+
                 user.subscription_id = subscription.id
                 user.save()
+                
                 status_code = status.HTTP_201_CREATED 
                 response = {
                     'status': status_code,
-                    'clientSecret': subscription.latest_invoice.payment_intent.client_secret
+                    'clientSecret': subscription.latest_invoice.payment_intent.client_secret,
+                    'onetimeClientSecret': onetimeClientSecret,
+                    'isonetime': isonetime
                 } 
 
                 return Response(response, status=status_code)
@@ -1372,6 +1690,75 @@ class UserCreateSubscription(APIView):
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e: 
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+class UpdateSubscription(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        user = request.user 
+        data = request.data
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        subscription = stripe.Subscription.retrieve(user.subscription_id)        
+
+        price_id = None      
+        optprice_flag = 0   
+
+        if data['option_price'] == 30000:
+            optprice_flag = 1
+            if(data['plan'] == 1):
+                price_id = settings.ECO_ADD_LIST
+            if(data['plan'] == 2):
+                price_id = settings.STANDARD_ADD_LIST
+            if(data['plan'] == 3):
+                price_id = settings.PRO_ADD_LIST
+            if(data['plan'] == 1):
+                price_id = settings.ENTERPRIZE_ADD_LIST
+        else:
+            if(data['plan'] == 1):
+                price_id = settings.ECO_PRICE_ID
+            if(data['plan'] == 2):
+                price_id = settings.STANDARD_PRICE_ID
+            if(data['plan'] == 3):
+                price_id = settings.PRO_PRICE_ID
+            if(data['plan'] == 1):
+                price_id = settings.ENTERPISE_PRICE_ID       
+
+        
+        try:
+            stripe.Subscription.modify(
+                subscription.id,
+                cancel_at_period_end=False,
+                proration_behavior='create_prorations',
+                items=[{
+                    'id': subscription['items']['data'][0].id,
+                    'price': price_id,
+                }]
+            )
+            
+            user.price_plan = data['plan']
+            user.option_price = optprice_flag
+            user.save()
+
+            status_code = status.HTTP_200_OK 
+            response = {
+                'status': status_code,
+                'type': 'successfully',
+            } 
+
+            return Response(response, status=status_code)
+        except Exception as e: 
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 
 
@@ -1405,6 +1792,10 @@ class CreateCheckoutSessionView(APIView):
 
 
 
+
+
+
+
 class GetPaymentStatus(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request): 
@@ -1430,9 +1821,12 @@ class GetPaymentStatus(APIView):
             'total_success_count':total_success_count,
             'total_sent_count':total_sent_count,
             'company':user.coporate_name,
+            'company_type':user.company_type,
+            'option_price':  user.option_price, 
             'username':str(user.firstname_of_charger) + " " + str(user.lastname_of_charger),
             'type': 'successfully',
         }
+
         return Response(response, status=status_code)
 
 
@@ -1455,6 +1849,8 @@ class SavePaymentMethod(APIView):
             'type': 'successfully',
         }
         return Response(response, status=status_code)
+
+
 
 
 class SavePricePlan(APIView):
@@ -1505,11 +1901,59 @@ class GetBasicInfo(APIView):
             'firstname_of_charger_firagana':  user.firstname_of_charger_firagana,     
             'lastname_of_charger_firagana':  user.lastname_of_charger_firagana,         
             'charger_prefecture':  user.charger_prefecture,          
-            'choice_word':  user.choice_word,  
+            'choice_word':  user.choice_word,               
             'status code': status_code, 
             'type': 'successfully',
         }
         return Response(response, status=status_code)
+
+
+class SetOptionPrice(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request): 
+        user = request.user   
+        data = request.data
+        
+        user.option_price = data['optionprice']
+        user.save()
+
+        status_code = status.HTTP_200_OK
+        response = {
+            'success': 'True', 
+            'status code': status_code, 
+            'type': 'successfully',
+        }
+        return Response(response, status=status_code)
+
+
+
+
+
+class SetPaymentasBank(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request): 
+        user = request.user 
+        data = request.data   
+ 
+        if data['isCheckOptionPrice']:
+            user.option_price = 1
+        else:
+            user.option_price = 0
+        user.price_plan = data['price_plan']
+        user.payment_method = data['payment_method']
+        user.save()
+         
+        status_code = status.HTTP_200_OK
+        response = {
+            'success': 'True', 
+            'status code': status_code, 
+            'type': 'successfully',
+        }
+        return Response(response, status=status_code)
+
+
+
+
 
 
 
@@ -1522,24 +1966,20 @@ class GetBasicInfo(APIView):
 
 
  
-class IsAdmin(APIView):
-    permission_classes = (IsAuthenticated,)
-    def post(self, request): 
-        user = request.user      
-        
-        isadmin = 0
-
-        if user.is_superuser == 1:
-            isadmin = 1
-
-        print(isadmin)
-        status_code = status.HTTP_200_OK
+class AdminLoginView(RetrieveAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = AdminLoginSerializer
+    def post(self, request):
+        serializer = self.serializer_class(data= request.data)
+        serializer.is_valid(raise_exception=True)
         response = {
-            'success': 'True', 
-            'status code': status_code, 
-            'isadmin':isadmin,
-            'type': 'successfully',
+            'status code' : status.HTTP_200_OK,
+            'token' : serializer.data['token'],
+            'refresh':serializer.data['refresh'],
+            'userstatus':serializer.data['userstatus'],
+            'email':serializer.data['email']
         }
+        status_code = status.HTTP_200_OK
         return Response(response, status=status_code)
 
 
@@ -1602,7 +2042,7 @@ class TestSendMail(APIView):
             'success': 'True',
             'method': 1,
             'status code': status_code,
-            'type': 'User registered  successfully',
+            'type': 'successfully',
         }
         return Response(response, status=status_code)
 
@@ -1678,34 +2118,51 @@ def sendReservationDM():
                     tpattern = eval(res_D.textpattern1)
                     reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, reserve_date, tpattern1_s, tpattern2_s, text_option_s)
 
-
  
 
 def sendDMAutoMatic(data, user, tpattern):   
+    global process_count, process_flag
+    process_count   = 0
+    process_flag    = False
+    
+    # createDriver()
+ 
+    for d in data['rows']:
+        try:
+            t = th.Timer(0.001, process, [d, user, tpattern, len(data['rows'])])
+            t.start()
+        except Exception as e: 
+            total_result.append({"status":"fail", "data": d }) 
+         
 
+
+
+def process(d, user, tpattern, all_count):    
     browser         = Browser()
     browser.set_handle_equiv(False)
     browser.set_handle_robots(False)
     browser.addheaders = [('User-agent','Mozilla/5.0 (X11; Linux x86_64; rv:18.0)Gecko/20100101 Firefox/18.0 (compatible;)'),('Accept', '*/*')]   
     
-    global interupt_flag, total_result 
+    global interupt_flag, total_result , process_count, process_flag, driver_lists
+ 
 
-    for d in data['rows']:
+    if(interupt_flag == True):
+        process_flag = True
+        return
+    else:
+        URL = d['contact_url']                                
+        ContactMail = d['mailaddress']    
 
-        if(interupt_flag == True):
-            break
-        else:
-            URL = d['contact_url']                                
-            ContactMail = d['mailaddress']                                
-
-            if(URL != ""):
-                page = requests.get(URL) 
-                soup = BeautifulSoup(page.content, "html.parser")  
+        if(URL != ""):
+            try:  
+                page = requests.get(URL)
+                soup = BeautifulSoup(page.content, "html.parser") 
+                
 
                 # Get Site Key
                 sitekey = ""
-                html        = str(soup) 
-                
+                html        = str(soup)   
+
                 if(html.count("'sitekey': '") > 0 \
                     or html.count("'sitekey':'") > 0 \
                         or html.count("'site-key': '") > 0 \
@@ -1738,7 +2195,8 @@ def sendDMAutoMatic(data, user, tpattern):
                 
                 if(html.count('method="post"') < 1):
                     total_result.append({"status":"fail", "data": d }) 
-                    continue
+                    process_count += 1
+                    return 
 
                 browser.open(URL) 
                 browser.select_form(method='post')  
@@ -1748,23 +2206,64 @@ def sendDMAutoMatic(data, user, tpattern):
                 browser.set_handle_redirect(True)
                 browser.set_handle_referer(True)
                 browser.set_handle_robots(False) 
+                 
+                print(sitekey)
+                
+                rd = "" 
+                
+                if(sitekey != ""):  
+                    if rd == "":
+                        solver = recaptchaV3Proxyless()
+                        solver.set_verbose(1)
+                        solver.set_key(ANTI_CAPTCHA_API_KEY)
+                        solver.set_website_url(URL)
+                        solver.set_website_key(sitekey)
+                        solver.set_page_action("home_page")
+                        solver.set_min_score(0.9) 
 
-                # reCaptcha sector
-                rd = ""
+                        g_response = solver.solve_and_return_solution()
+                        
+                        if g_response != 0:
+                            # print("g-response: "+g_response)
+                            rd = str(g_response)
+                        else:
+                            print ("task finished with error "+solver.error_code) 
 
-                if(sitekey != ""):
-                    recaptID = requests.post("http://azcaptcha.com/in.php?key=ztjfvxqglrkygp9zx4mkh3bh7b6ccm2d&method=userrecaptcha&version=v3&action=verify&min_score=0.3&googlekey="+ sitekey +"&pageurl="+URL)
-                    ds = BeautifulSoup(recaptID.content, "html.parser") 
+                    if rd == "":                    
+                        solver = recaptchaV2Proxyless()
+                        solver.set_verbose(1)
+                        solver.set_key(ANTI_CAPTCHA_API_KEY)
+                        solver.set_website_url(URL)
+                        solver.set_website_key(sitekey)
 
-                    recaptchResponse = requests.post("http://azcaptcha.com/res.php?key=ztjfvxqglrkygp9zx4mkh3bh7b6ccm2d&action=get&id="+str(ds).replace("OK|", ""))
-                    rd = BeautifulSoup(recaptchResponse.content, "html.parser")
+                        g_response = solver.solve_and_return_solution()
+                        if g_response != 0:
+                            print("g-response: "+g_response)
+                            rd = str(g_response)
+                        else:
+                            print ("task finished with error "+solver.error_code) 
+                    
+                    if rd == "":  
+                        solver = hCaptchaProxyless()
+                        solver.set_verbose(1)
+                        solver.set_key(ANTI_CAPTCHA_API_KEY)
+                        solver.set_website_url(URL)
+                        solver.set_website_key(sitekey) 
 
-                    print(rd)
-                # End reCaptcha sector
+                        g_response = solver.solve_and_return_solution()
+                        if g_response != 0:
+                            # print("g-response: "+g_response)
+                            rd = str(g_response)
+                        else:
+                            print ("task finished with error "+solver.error_code) 
 
-                #End Get Site Key
+                form = soup.find('form')  
 
-                form = soup.find('form') 
+                NoneType = type(None)
+                if isinstance(form, NoneType):
+                    process_count += 1
+                    return
+
                 inputs = form.find_all('input') 
                 textareas = form.find_all('textarea') 
                 checkboxes = form.find_all(type = 'checkbox') 
@@ -1773,196 +2272,344 @@ def sendDMAutoMatic(data, user, tpattern):
                 formTempData = {}    
                 flag = False
 
-                for input in inputs: 
+                for input in inputs:   
                     if(interupt_flag == True):
                         break
-                    else:                   
-                        if(input['type'] == "email"):
-                            browser[input['name']] = user.corporate_mail
-                            key = input['name']
-                            value = user.corporate_mail
-                            formTempData[key] = value                                          
+                    else:
+                        hasType = True
+                        checkType = ""
+                        try:
+                            checkType = input['type']
+                        except:
+                            hasType = False
+                        if hasType == True:  
 
-                        if(input['type'] == "text"):
-                            browser[input['name']] = ''
-                            key = input['name']
-                            value = ""
-                            formTempData[key] = value
-
-                            if(input['name'].find("name") != -1 \
-                            or r"user_name" in input['name'] \
-                                or r"your-name" in input['name'] \
-                                or "contact_name" in input['name'] \
-                                    or "名前" in input['name'] \
-                                        or "f4a6f2b" in input['name'] \
-                                            or "担当者" in input['name'] \
-                                                or "氏名" in input['name'] \
-                                                    or "name" == input['name'] \
-                                                        or "name1" == input['name'] \
-                                                            or "text-978" == input['name'] \
-                                                                or "firstname" == input['name'] \
-                                                                    or "full_name" == input['name'] \
-                                                                        or "customer_name" == input['name'] \
-                                                                            or "namae" in input['name'] \
-                                                                                or "form_fields[name]" in input['name']): 
-                                browser[input['name']] = user.firstname_of_charger + user.lastname_of_charger
-                                key = input['name']
-                                value = user.firstname_of_charger + user.lastname_of_charger
-                                formTempData[key] = value
-
-                            if( "姓" == input['name'] \
-                                or "firstName" == input['name'] \
-                                    or "first_name" == input['name'] \
-                                        or "name1" == input['name'] \
-                                            or "FirstName" in input['name'] \
-                                                or "firstname" in input['name'] ): 
-                                browser[input['name']] = user.firstname_of_charger 
-                                key = input['name']
-                                value = user.firstname_of_charger
-                                formTempData[key] = value
-
-                            if( "lastName" == input['name'] \
-                                or "name2" == input['name'] \
-                                    or "名" == input['name'] \
-                                        or "LastName" == input['name'] \
-                                            or "name3" in input['name'] \
-                                                or "lastname" in input['name'] ): 
-                                browser[input['name']] = user.lastname_of_charger 
-                                key = input['name']
-                                value = user.lastname_of_charger
-                                formTempData[key] = value
-
-                            if(input['name'].find("comp") != -1 \
-                                or input['name'].find("cname") != -1 \
-                                or "organization" in input['name'] \
-                                or "your-company" in input['name'] \
-                                or "company-name" in input['name'] \
-                                or "kaisha-name" in input['name'] \
-                                or "company" == input['name'] \
-                                or "contact_company" == input['name'] \
-                                or "campany" in input['name'] \
-                                or "your-corp" in input['name'] \
-                                or "corporate" in input['name'] \
-                                or "企業" in input['name'] \
-                                or "社名" in input['name'] \
-                                or "text-978" == input['name'] \
-                                or "Company" in input['name'] \
-                                or "company3" == input['name'] \
-                                or "form_fields[company]" in input['name'] \
-                                or "text-819" == input['name']
-                            ): 
-                                browser[input['name']] = user.coporate_name
-                                key = input['name']
-                                value = user.coporate_name
-                                formTempData[key] = value
-
-                            if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
-                                or "your-post" in input['name'] \
-                                    or "zip" in input['name'] \
-                                        or "code" in input['name']):
-                                browser[input['name']] = user.corporate_zipcode
-                                key = input['name']
-                                value = user.corporate_zipcode
-                                formTempData[key] = value
-
-                            if(input['name'].find("phon") != -1 \
-                                or "tel" in input['name'] \
-                                    or "TEL" in input['name'] \
-                                        or "Tel" in input['name'] \
-                                            or "電話" in input['name'] \
-                                                or "phone" in input['name'] \
-                                                    or "Phone" in input['name']):  
-                                browser[input['name']] = user.corporate_phone
-                                key = input['name']
-                                value = user.corporate_phone
-                                formTempData[key] = value
-
-                            if(input['name'].find("fax") != -1):
-                                browser[input['name']] = user.corporate_fax
-                                key = input['name']
-                                value = user.corporate_fax
-                                formTempData[key] = value
-
-                            if(input['name'].find("subject") != -1):
-                                browser[input['name']] = tpattern['title50']
-                                key = input['name']
-                                value = tpattern['title50']
-                                formTempData[key] = value
-                            
-                            if(input['name'].find("mail") != -1): 
-                                browser[input['name']] = user.corporate_mail
+                            if(input['type'] == "email"): 
                                 key = input['name']
                                 value = user.corporate_mail
+                                formTempData[key] = value    
+
+                            if(input['type'] == "url"): 
+                                if str(user.corporate_homepage) != "null": 
+                                    key = input['name']
+                                    value = str(user.corporate_homepage)
+                                    formTempData[key] = value   
+                                else: 
+                                    key = input['name']
+                                    value = "https://test.com"
+                                    formTempData[key] = value 
+
+                            if(input['type'] == "date"): 
+                                key = input['name']    
+                                curtime = datetime.now()
+                                value = str(datetime.strftime(curtime, '%Y-%m-%d'))
+                                formTempData[key] = value  
+
+                            if(input['type'] == "hidden"):
+                                hasVal = True
+                                checkVal = ""
+                                try:
+                                    checkVal = input['value']
+                                except:
+                                    hasVal = False
+                                if hasVal:
+                                    key = input['name']
+                                    value = input['value']
+                                    formTempData[key] = value                                                             
+
+                            if(input['type'] == "text"): 
+                                key = input['name']
+                                value = "。"
                                 formTempData[key] = value
 
-                            if(input['name'].find("furigana") != -1 \
-                            or "your-furiga" in input['name'] \
-                                or "userfuriga" in input['name'] \
-                                    or "personal_furigana_name" in input['name'] \
-                                        or "name_ruby" in input['name'] \
-                                            or "ふりがな" in input['name'] ): 
-                                browser[input['name']] = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
-                                key = input['name']
-                                value = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
-                                formTempData[key] = value
+                                if input['name'].find("city") != -1: 
+                                    key = input['name']
+                                    value = str(user.corporate_city)
+                                    formTempData[key] = value
                                 
+                                if input['name'].find("text-809") != -1: 
+                                    key = input['name']
+                                    value = str(user.firstname_of_charger) + str(user.lastname_of_charger)
+                                    formTempData[key] = value
 
-                            if(input['name'] == "quiz-31"): 
-                                browser[input['name']] = "東京"
-                                key = input['name']
-                                value = "東京"
-                                formTempData[key] = value
+                                if input['name'].find("chomei") != -1: 
+                                    key = input['name']
+                                    value = str(user.corporate_address)
+                                    formTempData[key] = value
+
+                                if input['name'].find("tatemono") != -1: 
+                                    key = input['name']
+                                    value = str(user.corporate_building_name)
+                                    formTempData[key] = value
+
+                                if input['name'].find("date") != -1:
+                                    if input['name'].find("year") != -1: 
+                                        key = input['name'] 
+                                        curtime = datetime.now()
+                                        value = str(datetime.strftime(curtime, '%Y'))
+                                        formTempData[key] = value
+
+                                    if input['name'].find("month") != -1: 
+                                        key = input['name'] 
+                                        curtime = datetime.now()
+                                        value = str(datetime.strftime(curtime, '%m'))
+                                        formTempData[key] = value
+
+                                    if input['name'].find("day") != -1: 
+                                        key = input['name'] 
+                                        curtime = datetime.now()
+                                        value = str(datetime.strftime(curtime, '%d'))
+                                        formTempData[key] = value
+
+                                    else: 
+                                        key = input['name']
+                                        curtime = datetime.now()
+                                        value = str(datetime.strftime(curtime, '%Y-%m-%d'))
+                                        formTempData[key] = value
+
+                                if(input['name'].find("name") != -1 \
+                                    or r"user_name" in input['name'] \
+                                    or "_field_1_name" in input['name'] \
+                                    or "tkna001" in input['name'] \
+                                        or "_field_1_name_katakana" in input['name'] \
+                                    or r"your-name" in input['name'] \
+                                    or "contact_name" in input['name'] \
+                                        or "名前" in input['name'] \
+                                            or "f4a6f2b" in input['name'] \
+                                                or "担当者" in input['name'] \
+                                                    or "氏名" in input['name'] \
+                                                        or "name" == input['name'] \
+                                                            or "name1" == input['name'] \
+                                                                or "text-978" == input['name'] \
+                                                                    or "firstname" == input['name'] \
+                                                                        or "full_name" == input['name'] \
+                                                                            or "customer_name" == input['name'] \
+                                                                                or "namae" in input['name'] \
+                                                                                    or "form_fields[name]" in input['name']):  
+                                    key = input['name']
+                                    value = user.firstname_of_charger + user.lastname_of_charger
+                                    formTempData[key] = value
+
+                                if( "姓" == input['name'] \
+                                    or "firstName" == input['name'] \
+                                        or "first_name" == input['name'] \
+                                            or "name1" == input['name'] \
+                                            or "name-1" == input['name'] \
+                                                or "FirstName" in input['name'] \
+                                                    or "firstname" in input['name'] ):  
+                                    key = input['name']
+                                    value = user.firstname_of_charger
+                                    formTempData[key] = value
+
+                                if( "lastName" == input['name'] \
+                                    or "name2" == input['name'] \
+                                        or "名" == input['name'] \
+                                            or "LastName" == input['name'] \
+                                                or "name3" in input['name'] \
+                                                or "name-2" in input['name'] \
+                                                    or "lastname" in input['name'] ):  
+                                    key = input['name']
+                                    value = user.lastname_of_charger
+                                    formTempData[key] = value
+
+                                if(input['name'].find("comp") != -1 \
+                                    or input['name'].find("cname") != -1 \
+                                    or "organization" in input['name'] \
+                                    or "your-company" in input['name'] \
+                                    or "company-name" in input['name'] \
+                                    or "_field_2" in input['name'] \
+                                    or "kaisha-name" in input['name'] \
+                                    or "company" == input['name'] \
+                                    or "contact_company" == input['name'] \
+                                    or "campany" in input['name'] \
+                                    or "your-corp" in input['name'] \
+                                    or "corporate" in input['name'] \
+                                    or "企業" in input['name'] \
+                                    or "社名" in input['name'] \
+                                    or "text-978" == input['name'] \
+                                    or "Company" in input['name'] \
+                                    or "company3" == input['name'] \
+                                    or "form_fields[company]" in input['name'] \
+                                    or "text-819" == input['name']
+                                ):  
+                                    key = input['name']
+                                    value = user.coporate_name
+                                    formTempData[key] = value
+
+                                if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
+                                    or "your-post" in input['name'] \
+                                        or "zip" in input['name'] \
+                                            or "code" in input['name']): 
+                                    key = input['name']
+                                    value = user.corporate_zipcode
+                                    formTempData[key] = value
+
+                                if(input['name'].find("phon") != -1 \
+                                    or "tel" in input['name'] \
+                                        or input['name'].find("tel") != -1 \
+                                            or input['name'].find("tkph") != -1 \
+                                        or "TEL" in input['name'] \
+                                            or "Tel" in input['name'] \
+                                                or "電話" in input['name'] \
+                                                    or "phone" in input['name'] \
+                                                        or "Phone" in input['name']):   
+                                    key = input['name']
+                                    value = user.corporate_phone
+                                    formTempData[key] = value
+
+                                if(input['name'].find("fax") != -1): 
+                                    key = input['name']
+                                    value = user.corporate_fax
+                                    formTempData[key] = value
+
+                                if(input['name'].find("subject") != -1): 
+                                    key = input['name']
+                                    value = tpattern['title50']
+                                    formTempData[key] = value
+                                
+                                if(input['name'].find("mail") != -1):  
+                                    key = input['name']
+                                    value = user.corporate_mail
+                                    formTempData[key] = value 
+
+                                if(input['name'].find("furigana") != -1 \
+                                or "your-furiga" in input['name'] \
+                                    or "userfuriga" in input['name'] \
+                                        or "personal_furigana_name" in input['name'] \
+                                            or "name_ruby" in input['name'] \
+                                                or "ふりがな" in input['name'] ):  
+                                    key = input['name']
+                                    value = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
+                                    formTempData[key] = value
+
+                                if(input['name'].find("kana-1")) != -1: 
+                                    key = input['name']
+                                    value = user.firstname_of_charger_firagana 
+                                    formTempData[key] = value
+
+                                if input['name'] == "_field_3": 
+                                    key = input['name']
+                                    value = user.corporate_mail 
+                                    formTempData[key] = value
+
+                                if(input['name'].find("kana-2")) != -1: 
+                                    key = input['name']
+                                    value = user.lastname_of_charger_firagana 
+                                    formTempData[key] = value
+                                    
+
+                                if(input['name'] == "quiz-31"): 
+                                    browser[input['name']] = "東京"
+                                    key = input['name']
+                                    value = "東京"
+                                    formTempData[key] = value
+                                
+                            if(input['type'] == "tel"):
+                                if(input['name'].find("phon") != -1 \
+                                    or "tel" in input['name'] \
+                                        or "TEL" in input['name'] \
+                                            or "Tel" in input['name'] \
+                                                or "電話" in input['name'] \
+                                                    or "phone" in input['name'] \
+                                                        or "Phone" in input['name']):                             
+                                    browser[input['name']] = user.corporate_phone
+                                    key = input['name']
+                                    value = user.corporate_phone
+                                    formTempData[key] = value
+
+                                if(input['name'].find("post") != -1 \
+                                    or "your-post" in input['name'] \
+                                        or "postalCode" in input['name'] \
+                                            or "zip" in input['name']): 
+                                    key = input['name']
+                                    value = user.corporate_zipcode
+                                    formTempData[key] = value
                             
-                        if(input['type'] == "tel"):
-                            if(input['name'].find("phon") != -1 \
-                                or "tel" in input['name'] \
-                                    or "TEL" in input['name'] \
-                                        or "Tel" in input['name'] \
-                                            or "電話" in input['name'] \
-                                                or "phone" in input['name'] \
-                                                    or "Phone" in input['name']):                             
-                                browser[input['name']] = user.corporate_phone
-                                key = input['name']
-                                value = user.corporate_phone
-                                formTempData[key] = value
-
-                            if(input['name'].find("post") != -1 \
-                                or "your-post" in input['name'] \
-                                    or "postalCode" in input['name'] \
-                                        or "zip" in input['name']):
-                                browser[input['name']] = user.corporate_zipcode
-                                key = input['name']
-                                value = user.corporate_zipcode
-                                formTempData[key] = value
+                            if(input['type'] == "radio"):  
+                                b_in_dict =  input['name'] in formTempData
+                                if(b_in_dict != True): 
+                                    key = input['name']
+                                    value = [input['value']]
+                                    formTempData[key] = value
                         
-                        if(input['type'] == "radio"):  
-                            b_in_dict =  input['name'] in formTempData
-                            if(b_in_dict != True):
-                                browser[input['name']] = [input['value']]
-                                key = input['name']
-                                value = [input['value']]
-                                formTempData[key] = value
-                        
+                         
 
                 for textarea in textareas: 
                     if(interupt_flag == True):
                         break
-                    else:
-                        browser[textarea['name']] = tpattern['text1000']
-                        key = textarea['name']
-                        value = tpattern['text1000']
-                        formTempData[key] = value 
+                    else: 
+                        maxLength = 0
+                        try:
+                            if str(textarea).find('maxlength="') !=-1: 
+                                maxLength = str(textarea).split('maxlength="')[1]                                 
+                                maxLength = str(maxLength).split('"')[0] 
+                                maxLength = int(maxLength) 
+                                
+                                
+                                if 0 < maxLength <= 100: 
+                                    key = textarea['name']
+                                    value = tpattern['text100']
+                                    formTempData[key] = value 
+
+                                if 100< maxLength < 251: 
+                                    key = textarea['name']
+                                    value = tpattern['text250']
+                                    formTempData[key] = value
+
+                                if 250 < maxLength < 501: 
+                                    key = textarea['name']
+                                    value = tpattern['text500']
+                                    formTempData[key] = value
+
+                                if 500 < maxLength < 1001: 
+                                    key = textarea['name']
+                                    value = tpattern['text1000']
+                                    formTempData[key] = value
+                                
+                                else:
+                                    key = textarea['name']
+                                    value = tpattern['text100']
+                                    formTempData[key] = value 
+
+                        except:
+                            maxLength = 0
+
+                        if maxLength == 0:              
+                            key = textarea['name']
+                            value = tpattern['text100']
+                            formTempData[key] = value 
 
 
                 for select in selects: 
                     if(interupt_flag == True):
                         break
                     else:
-                        option = select.select('option') 
-                        browser[select['name']] = [option[0]['value']]
-                        key = select['name']
-                        value = option[0]['value']
-                        formTempData[key] = value   
+                        if select['name'].find("state") != -1 \
+                            or select['name'].find("pref") != -1:  
+                            key = select['name'] 
+                            value = str(user.corporate_prefecture)
+                            formTempData[key] = value 
+
+                        if select['name'].find("month") != -1: 
+                            key = select['name']
+                            value = datetime.now().month
+                            formTempData[key] = value
+
+                        if select['name'].find("year") != -1: 
+                            key = select['name']
+                            value = str(datetime.now().year)
+                            formTempData[key] = value
+
+                        if select['name'].find("day") != -1: 
+                            key = select['name']
+                            value = str(datetime.now().day)
+                            formTempData[key] = value
+
+                        else:
+                            option = select.select('option')  
+                            key = select['name'] 
+                            value = option[2]['value']
+                            formTempData[key] = value 
 
                 for checkbox in checkboxes:  
                     if(interupt_flag == True):
@@ -1974,77 +2621,102 @@ def sendDMAutoMatic(data, user, tpattern):
                         formTempData[key] = value 
 
                 
-                if(sitekey == ""):
-                    response = browser.submit()
-                    content = response.read() 
-                    soup = BeautifulSoup(content, "html.parser")  
-                    form = soup.find('form')   
-                    # print(form) 
-                    if("失敗" in str(form) or "後でまたお試" in str(form) or "エラー" in str(form) or "問題があります" in str(form)):
-                        total_result.append({"status":"fail", "data": d })  
-                        # print(form)                  
+                if(sitekey == ""): 
+                    response = browser.submit()                    
+                    cuurl = response.geturl()
+                    urlArr = cuurl.split("/")
+
+                    urlFirst = ''
+                    i = 0
+                    for u in urlArr:
+                        if(i < len(urlArr) - 1):
+                            urlFirst = urlFirst + u + "/"
+                        i = i + 1
+    
+                    naction = form['action'] 
+                    httpnaction = form['action'] 
+                    
+                    if(naction.find('./') != -1):
+                        naction = naction.replace('./', "")   
+
+                    if(naction.find('/') != -1):
+                        naction = naction.replace('/', "")              
+                    
+                    comUrl = urlFirst + naction  
+
+                    if httpnaction.find("http") != -1:
+                        comUrl = httpnaction
+
+                    if URL.find(httpnaction) != -1:
+                        comUrl = URL
+                    request_ans = requests.post(comUrl, data=formTempData)  
+                    responsePageHTML = BeautifulSoup(request_ans.content, "html.parser") 
+
+                    if str(responsePageHTML).find("入力内容に問題があります") != -1 \
+                        or str(responsePageHTML).find("確認して再度お試し") != -1 \
+                            or str(responsePageHTML).find("404 Not Found") != -1:
+                        total_result.append({"status":"fail", "data": d }) 
 
                     else:
-                        cuurl = response.geturl()
-                        urlArr = cuurl.split("/")
+                        total_result.append({"status":"success", "data": d })    
 
-                        urlFirst = ''
-                        i = 0
-                        for u in urlArr:
-                            if(i < len(urlArr) - 1):
-                                urlFirst = urlFirst + u + "/"
-                            i = i + 1
-        
-                        naction = form['action'] 
-                        
-                        if(naction.find('./') != -1):
-                            naction = naction.replace('./', "")   
 
-                        if(naction.find('/') != -1):
-                            naction = naction.replace('/', "")              
-                        
-                        comUrl = urlFirst + naction  
-
-                        checkStr = soup.find_all("form")
-                        checkStr = str(checkStr)
-
-                        if "送信" in str(soup.find_all("form")) \
-                            and "submit" in str(soup.find_all("form") \
-                                or checkStr.count("修正する") > 0 \
-                                    or checkStr.count("戻") > 0):
-                        
-                            cinputs = form.find_all('input') 
-                            
-                            for cd in cinputs:
-
-                                if(cd['type'] == 'submit'):
-                                    if( cd.has_attr('name')):
-                                        key = cd['name']
-                                        value = "submit button"
-                                        formTempData[key] = value 
-                                    else:
-                                        key = ''
-                                        value = "submit"
-                                        formTempData[key] = value 
-                            
-                            request_ans = requests.post(comUrl, data=formTempData)    
-                            ans_html = BeautifulSoup(request_ans.content, "html.parser") 
-                            print("OK===================")                                     
-                            total_result.append({"status":"success", "data": d }) 
-                else:
-                    req_data_str = str(rd)
-                    if(req_data_str.count('ERROR') > 0 or req_data_str.count('CAPCHA_NOT_READY') > 0):
+                else:                     
+                    if(rd == ""):
                         total_result.append({"status":"fail", "data": d }) 
 
                     else:
                         if(flag == False): 
-                            formTempData['g-recaptcha-response'] = req_data_str
-                            request_ans = requests.post(URL, data=formTempData)
-                            ans_html = BeautifulSoup(request_ans.content, "html.parser") 
-                            # print(ans_html) 
-                            total_result.append({"status":"success", "data": d })                     
 
-            if(ContactMail != "" and URL == ""):                
+                            urlArr = URL.split("/")
+                            urlFirst = ''
+                            i = 0
+                            for u in urlArr:
+                                if(i < len(urlArr) - 1):
+                                    urlFirst = urlFirst + u + "/"
+                                i = i + 1
+                            
+                            
+                            if isinstance(form['action'], NoneType): 
+                                return
+                            naction = str(form['action'] )
+                            httpnaction = str(form['action'] )
+                            
+                            if(naction.find('./') != -1):
+                                naction = naction.replace('./', "")   
+
+                            if(naction.find('/') != -1):
+                                naction = naction.replace('/', "")              
+                            
+                            comUrl = urlFirst + naction  
+
+                            if httpnaction.find("http") != -1:
+                                comUrl = httpnaction
+                            
+                            if URL.find(httpnaction) != -1:
+                                comUrl = URL
+
+                            site_url = comUrl 
+                            formTempData['g-recaptcha-response'] = rd 
+                            request_ans = requests.post(site_url, data=formTempData)   
+                            responsePageHTML = BeautifulSoup(request_ans.content, "html.parser") 
+
+                            if str(responsePageHTML).find("入力内容に問題があります") != -1 \
+                                or str(responsePageHTML).find("確認して再度お試し") != -1 \
+                                    or str(responsePageHTML).find("404 Not Found") != -1:
+                                total_result.append({"status":"fail", "data": d }) 
+
+                            else:
+                                total_result.append({"status":"success", "data": d })
+                                 
+            except Exception as e: 
+                print(e)
+                traceback.print_exc()
+                total_result.append({"status":"fail", "data": d })
+
+
+        if(ContactMail != "" and URL == ""):   
+            try:             
                 total_result.append({"status":"mail", "data": d })
                 
                 from_email = settings.DEFAULT_FROM_EMAIL
@@ -2061,294 +2733,508 @@ def sendDMAutoMatic(data, user, tpattern):
 
                 send_mail(subject, message, from_email, to, html_message=html)
 
-            if(ContactMail == "" and URL == ""):                
+            except Exception as e: 
                 total_result.append({"status":"fail", "data": d })
+
+
+        if(ContactMail == "" and URL == ""):                
+            total_result.append({"status":"fail", "data": d })
+
+    
+    process_count += 1
+    
+    if process_count == all_count:
+        process_flag = True      
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 def reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, reserve_date, tpattern1_s, tpattern2_s, text_option_s):
     URL = main_data['contact_url']                                
     ContactMail = main_data['mailaddress']                                
-    subtotal_result = []
-
+    subtotal_result = [] 
+     
     if(URL != ""):
-        page = requests.get(URL) 
-        soup = BeautifulSoup(page.content, "html.parser")  
+        try:
+            page = requests.get(URL)  
+            soup = BeautifulSoup(page.content, "html.parser")  
 
-        # Get Site Key
-        sitekey = ""
-        html        = str(soup) 
-        
-        if(html.count("'sitekey': '") > 0 \
-            or html.count("'sitekey':'") > 0 \
-                or html.count("'site-key': '") > 0 \
-                    or html.count("'siteKey': '") > 0 \
-                        or html.count("'site_key': '") > 0 ):
-
-            tags        = html.split("key': '")
-            tag         = tags[1]        
-            tags        = tag.split("'")
-            sitekey     = tags[0] 
-
-        if(html.count("var sitekey = '") > 0):
-            tags        = html.split("var sitekey = '")
-            tag         = tags[1]        
-            tags        = tag.split("'")
-            sitekey     = tags[0] 
-
-        if(html.count('data-sitekey="') > 0):
-            tags        = html.split('data-sitekey="')
-            tag         = tags[1]        
-            tags        = tag.split('"')
-            sitekey     = tags[0] 
-
-        if(html.count('title="reCAPTCHA"') > 0):
-            tags        = html.split('k=')
-            tag         = tags[1]        
-            tags        = tag.split('&')
-            sitekey     = tags[0] 
-
-        
-        if(html.count('method="post"') < 1):
-            subtotal_result.append({"status":"fail", "data": main_data }) 
-             
-
-        browser.open(URL) 
-        browser.select_form(method='post')  
-
-        browser.set_all_readonly(False) 
-        browser.set_handle_equiv(True)
-        browser.set_handle_redirect(True)
-        browser.set_handle_referer(True)
-        browser.set_handle_robots(False) 
-
-        # reCaptcha sector
-        rd = ""
-
-        if(sitekey != ""):
-            recaptID = requests.post("http://azcaptcha.com/in.php?key=ztjfvxqglrkygp9zx4mkh3bh7b6ccm2d&method=userrecaptcha&version=v3&action=verify&min_score=0.3&googlekey="+ sitekey +"&pageurl="+URL)
-            ds = BeautifulSoup(recaptID.content, "html.parser") 
-
-            recaptchResponse = requests.post("http://azcaptcha.com/res.php?key=ztjfvxqglrkygp9zx4mkh3bh7b6ccm2d&action=get&id="+str(ds).replace("OK|", ""))
-            rd = BeautifulSoup(recaptchResponse.content, "html.parser")
-
-            print(rd)
-        # End reCaptcha sector
-
-        #End Get Site Key
-
-        form = soup.find('form') 
-        inputs = form.find_all('input') 
-        textareas = form.find_all('textarea') 
-        checkboxes = form.find_all(type = 'checkbox') 
-        selects = form.select('select')    
-        
-        formTempData = {}    
-        flag = False
+            # Get Site Key
+            sitekey = ""
+            html        = str(soup) 
             
-        for input in inputs:                    
-            if(input['type'] == "email"):
-                browser[input['name']] = user.corporate_mail
-                key = input['name']
-                value = user.corporate_mail
-                formTempData[key] = value                                          
+            if(html.count("'sitekey': '") > 0 \
+                or html.count("'sitekey':'") > 0 \
+                    or html.count("'site-key': '") > 0 \
+                        or html.count("'siteKey': '") > 0 \
+                            or html.count("'site_key': '") > 0 ):
 
-            if(input['type'] == "text"):
-                browser[input['name']] = ''
-                key = input['name']
-                value = ""
-                formTempData[key] = value
+                tags        = html.split("key': '")
+                tag         = tags[1]        
+                tags        = tag.split("'")
+                sitekey     = tags[0] 
 
-                if(input['name'].find("name") != -1 \
-                or r"user_name" in input['name'] \
-                    or r"your-name" in input['name'] \
-                    or "contact_name" in input['name'] \
-                        or "名前" in input['name'] \
-                            or "f4a6f2b" in input['name'] \
-                                or "担当者" in input['name'] \
-                                    or "氏名" in input['name'] \
-                                        or "name" == input['name'] \
-                                            or "name1" == input['name'] \
-                                                or "text-978" == input['name'] \
-                                                    or "firstname" == input['name'] \
-                                                        or "full_name" == input['name'] \
-                                                            or "customer_name" == input['name'] \
-                                                                or "namae" in input['name'] \
-                                                                    or "form_fields[name]" in input['name']): 
-                    browser[input['name']] = user.firstname_of_charger + user.lastname_of_charger
-                    key = input['name']
-                    value = user.firstname_of_charger + user.lastname_of_charger
-                    formTempData[key] = value
+            if(html.count("var sitekey = '") > 0):
+                tags        = html.split("var sitekey = '")
+                tag         = tags[1]        
+                tags        = tag.split("'")
+                sitekey     = tags[0] 
 
-                if( "姓" == input['name'] \
-                    or "firstName" == input['name'] \
-                        or "first_name" == input['name'] \
-                            or "name1" == input['name'] \
-                                or "FirstName" in input['name'] \
-                                    or "firstname" in input['name'] ): 
-                    browser[input['name']] = user.firstname_of_charger 
-                    key = input['name']
-                    value = user.firstname_of_charger
-                    formTempData[key] = value
+            if(html.count('data-sitekey="') > 0):
+                tags        = html.split('data-sitekey="')
+                tag         = tags[1]        
+                tags        = tag.split('"')
+                sitekey     = tags[0] 
 
-                if( "lastName" == input['name'] \
-                    or "name2" == input['name'] \
-                        or "名" == input['name'] \
-                            or "LastName" == input['name'] \
-                                or "name3" in input['name'] \
-                                    or "lastname" in input['name'] ): 
-                    browser[input['name']] = user.lastname_of_charger 
-                    key = input['name']
-                    value = user.lastname_of_charger
-                    formTempData[key] = value
+            if(html.count('title="reCAPTCHA"') > 0):
+                tags        = html.split('k=')
+                tag         = tags[1]        
+                tags        = tag.split('&')
+                sitekey     = tags[0] 
 
-                if(input['name'].find("comp") != -1 \
-                    or input['name'].find("cname") != -1 \
-                    or "organization" in input['name'] \
-                    or "your-company" in input['name'] \
-                    or "company-name" in input['name'] \
-                    or "kaisha-name" in input['name'] \
-                    or "company" == input['name'] \
-                    or "contact_company" == input['name'] \
-                    or "campany" in input['name'] \
-                    or "your-corp" in input['name'] \
-                    or "corporate" in input['name'] \
-                    or "企業" in input['name'] \
-                    or "社名" in input['name'] \
-                    or "text-978" == input['name'] \
-                    or "Company" in input['name'] \
-                    or "company3" == input['name'] \
-                    or "form_fields[company]" in input['name'] \
-                    or "text-819" == input['name']
-                ): 
-                    browser[input['name']] = user.coporate_name
-                    key = input['name']
-                    value = user.coporate_name
-                    formTempData[key] = value
-
-                if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
-                    or "your-post" in input['name'] \
-                        or "zip" in input['name'] \
-                            or "code" in input['name']):
-                    browser[input['name']] = user.corporate_zipcode
-                    key = input['name']
-                    value = user.corporate_zipcode
-                    formTempData[key] = value
-
-                if(input['name'].find("phon") != -1 \
-                    or "tel" in input['name'] \
-                        or "TEL" in input['name'] \
-                            or "Tel" in input['name'] \
-                                or "電話" in input['name'] \
-                                    or "phone" in input['name'] \
-                                        or "Phone" in input['name']):  
-                    browser[input['name']] = user.corporate_phone
-                    key = input['name']
-                    value = user.corporate_phone
-                    formTempData[key] = value
-
-                if(input['name'].find("fax") != -1):
-                    browser[input['name']] = user.corporate_fax
-                    key = input['name']
-                    value = user.corporate_fax
-                    formTempData[key] = value
-
-                if(input['name'].find("subject") != -1):
-                    browser[input['name']] = tpattern['title50']
-                    key = input['name']
-                    value = tpattern['title50']
-                    formTempData[key] = value
+            
+            if(html.count('method="post"') < 1):
+                subtotal_result.append({"status":"fail", "data": main_data }) 
                 
-                if(input['name'].find("mail") != -1): 
-                    browser[input['name']] = user.corporate_mail
-                    key = input['name']
-                    value = user.corporate_mail
-                    formTempData[key] = value
 
-                if(input['name'].find("furigana") != -1 \
-                or "your-furiga" in input['name'] \
-                    or "userfuriga" in input['name'] \
-                        or "personal_furigana_name" in input['name'] \
-                            or "name_ruby" in input['name'] \
-                                or "ふりがな" in input['name'] ): 
-                    browser[input['name']] = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
-                    key = input['name']
-                    value = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
-                    formTempData[key] = value
+            browser.open(URL) 
+            browser.select_form(method='post')  
+
+            browser.set_all_readonly(False) 
+            browser.set_handle_equiv(True)
+            browser.set_handle_redirect(True)
+            browser.set_handle_referer(True)
+            browser.set_handle_robots(False) 
+
+            # reCaptcha sector
+            rd = ""
+
+            if(sitekey != ""):
+                if rd == "":
+                    solver = recaptchaV3Proxyless()
+                    solver.set_verbose(1)
+                    solver.set_key(ANTI_CAPTCHA_API_KEY)
+                    solver.set_website_url(URL)
+                    solver.set_website_key(sitekey)
+                    solver.set_page_action("home_page")
+                    solver.set_min_score(0.9) 
+
+                    g_response = solver.solve_and_return_solution()
                     
+                    if g_response != 0:
+                        # print("g-response: "+g_response)
+                        rd = str(g_response)
+                    else:
+                        print ("task finished with error "+solver.error_code) 
 
-                if(input['name'] == "quiz-31"): 
-                    browser[input['name']] = "東京"
-                    key = input['name']
-                    value = "東京"
-                    formTempData[key] = value
+                if rd == "":                    
+                    solver = recaptchaV2Proxyless()
+                    solver.set_verbose(1)
+                    solver.set_key(ANTI_CAPTCHA_API_KEY)
+                    solver.set_website_url(URL)
+                    solver.set_website_key(sitekey)
+
+                    g_response = solver.solve_and_return_solution()
+                    if g_response != 0:
+                        print("g-response: "+g_response)
+                        rd = str(g_response)
+                    else:
+                        print ("task finished with error "+solver.error_code) 
                 
-            if(input['type'] == "tel"):
-                if(input['name'].find("phon") != -1 \
-                    or "tel" in input['name'] \
-                        or "TEL" in input['name'] \
-                            or "Tel" in input['name'] \
-                                or "電話" in input['name'] \
-                                    or "phone" in input['name'] \
-                                        or "Phone" in input['name']):                             
-                    browser[input['name']] = user.corporate_phone
-                    key = input['name']
-                    value = user.corporate_phone
+                if rd == "":  
+                    solver = hCaptchaProxyless()
+                    solver.set_verbose(1)
+                    solver.set_key(ANTI_CAPTCHA_API_KEY)
+                    solver.set_website_url(URL)
+                    solver.set_website_key(sitekey) 
+
+                    g_response = solver.solve_and_return_solution()
+                    if g_response != 0:
+                        # print("g-response: "+g_response)
+                        rd = str(g_response)
+                    else:
+                        print ("task finished with error "+solver.error_code) 
+
+
+            #End Get Site Key
+
+            form = soup.find('form')  
+            inputs = form.find_all('input') 
+            textareas = form.find_all('textarea') 
+            checkboxes = form.find_all(type = 'checkbox') 
+            selects = form.select('select')    
+            
+            formTempData = {}    
+            flag = False
+                
+            for input in inputs:  
+                hasType = True
+                checkType = ""
+                try:
+                    checkType = input['type']
+                except:
+                    hasType = False
+                if hasType == True:  
+                    if(input['type'] == "email"):
+                        browser[input['name']] = user.corporate_mail
+                        key = input['name']
+                        value = user.corporate_mail
+                        formTempData[key] = value       
+
+                    if(input['type'] == "url"):
+                        if str(user.corporate_homepage) != "null": 
+                            key = input['name']
+                            value = str(user.corporate_homepage)
+                            formTempData[key] = value   
+                        else: 
+                            key = input['name']
+                            value = "https://test.com"
+                            formTempData[key] = value  
+
+                    if(input['type'] == "hidden"):
+                        hasVal = True
+                        checkVal = ""
+                        try:
+                            checkVal = input['value']
+                        except:
+                            hasVal = False
+                        if hasVal:
+                            browser[input['name']] = input['value']
+                            key = input['name']
+                            value = input['value']
+                            formTempData[key] = value     
+
+                    if(input['type'] == "date"):
+                        curtime = datetime.now()
+                        value = str(datetime.strftime(curtime, '%Y-%m-%d'))
+                        browser[input['name']] = value
+                        key = input['name'] 
+                        formTempData[key] = value                                 
+
+                    if(input['type'] == "text"):
+                        browser[input['name']] = '。'
+                        key = input['name']
+                        value = "。"
+                        formTempData[key] = value
+
+                        if input['name'].find("city") != -1:
+                            browser[input['name']] = str(user.corporate_city)
+                            key = input['name']
+                            value = str(user.corporate_city)
+                            formTempData[key] = value
+
+                        if input['name'].find("chomei") != -1:
+                            browser[input['name']] = str(user.corporate_address)
+                            key = input['name']
+                            value = str(user.corporate_address)
+                            formTempData[key] = value
+                        
+                        if input['name'].find("tatemono") != -1:
+                            browser[input['name']] = str(user.corporate_building_name)
+                            key = input['name']
+                            value = str(user.corporate_building_name)
+                            formTempData[key] = value
+
+                        if input['name'].find("date") != -1:
+                            if input['name'].find("year") != -1: 
+                                key = input['name'] 
+                                curtime = datetime.now()
+                                value = str(datetime.strftime(curtime, '%Y'))
+                                formTempData[key] = value
+
+                            if input['name'].find("month") != -1: 
+                                key = input['name'] 
+                                curtime = datetime.now()
+                                value = str(datetime.strftime(curtime, '%m'))
+                                formTempData[key] = value
+
+                            if input['name'].find("day") != -1: 
+                                key = input['name'] 
+                                curtime = datetime.now()
+                                value = str(datetime.strftime(curtime, '%d'))
+                                formTempData[key] = value
+
+                            else: 
+                                key = input['name']
+                                curtime = datetime.now()
+                                value = str(datetime.strftime(curtime, '%Y-%m-%d'))
+                                formTempData[key] = value
+
+                        if(input['name'].find("name") != -1 \
+                            or r"user_name" in input['name'] \
+                            or "_field_1_name" in input['name'] \
+                            or "tkna001" in input['name'] \
+                                or "_field_1_name_katakana" in input['name'] \
+                            or r"your-name" in input['name'] \
+                            or "contact_name" in input['name'] \
+                                or "名前" in input['name'] \
+                                    or "f4a6f2b" in input['name'] \
+                                        or "担当者" in input['name'] \
+                                            or "氏名" in input['name'] \
+                                                or "name" == input['name'] \
+                                                    or "name1" == input['name'] \
+                                                        or "text-978" == input['name'] \
+                                                            or "firstname" == input['name'] \
+                                                                or "full_name" == input['name'] \
+                                                                    or "customer_name" == input['name'] \
+                                                                        or "namae" in input['name'] \
+                                                                            or "form_fields[name]" in input['name']): 
+                            browser[input['name']] = user.firstname_of_charger + user.lastname_of_charger
+                            key = input['name']
+                            value = user.firstname_of_charger + user.lastname_of_charger
+                            formTempData[key] = value
+
+                        if( "姓" == input['name'] \
+                            or "firstName" == input['name'] \
+                                or "first_name" == input['name'] \
+                                    or "name1" == input['name'] \
+                                    or "name-1" == input['name'] \
+                                        or "FirstName" in input['name'] \
+                                            or "firstname" in input['name'] ): 
+                            browser[input['name']] = user.firstname_of_charger 
+                            key = input['name']
+                            value = user.firstname_of_charger
+                            formTempData[key] = value
+
+                        if( "lastName" == input['name'] \
+                            or "name2" == input['name'] \
+                                or "名" == input['name'] \
+                                    or "LastName" == input['name'] \
+                                        or "name3" in input['name'] \
+                                        or "name-2" in input['name'] \
+                                            or "lastname" in input['name'] ): 
+                            browser[input['name']] = user.lastname_of_charger 
+                            key = input['name']
+                            value = user.lastname_of_charger
+                            formTempData[key] = value
+
+                        if(input['name'].find("comp") != -1 \
+                            or input['name'].find("cname") != -1 \
+                            or "organization" in input['name'] \
+                            or "your-company" in input['name'] \
+                            or "company-name" in input['name'] \
+                            or "_field_2" in input['name'] \
+                            or "kaisha-name" in input['name'] \
+                            or "company" == input['name'] \
+                            or "contact_company" == input['name'] \
+                            or "campany" in input['name'] \
+                            or "your-corp" in input['name'] \
+                            or "corporate" in input['name'] \
+                            or "企業" in input['name'] \
+                            or "社名" in input['name'] \
+                            or "text-978" == input['name'] \
+                            or "Company" in input['name'] \
+                            or "company3" == input['name'] \
+                            or "form_fields[company]" in input['name'] \
+                            or "text-819" == input['name']
+                        ): 
+                            browser[input['name']] = user.coporate_name
+                            key = input['name']
+                            value = user.coporate_name
+                            formTempData[key] = value
+
+                        if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
+                            or "your-post" in input['name'] \
+                                or "zip" in input['name'] \
+                                    or "code" in input['name']):
+                            browser[input['name']] = user.corporate_zipcode
+                            key = input['name']
+                            value = user.corporate_zipcode
+                            formTempData[key] = value
+
+                        if(input['name'].find("phon") != -1 \
+                            or "tel" in input['name'] \
+                            or input['name'].find("tkph") != -1 \
+                                or input['name'].find("tel") != -1 \
+                                or "TEL" in input['name'] \
+                                    or "Tel" in input['name'] \
+                                        or "電話" in input['name'] \
+                                            or "phone" in input['name'] \
+                                                or "Phone" in input['name']):  
+                            browser[input['name']] = user.corporate_phone
+                            key = input['name']
+                            value = user.corporate_phone
+                            formTempData[key] = value
+
+                        if(input['name'].find("fax") != -1):
+                            browser[input['name']] = user.corporate_fax
+                            key = input['name']
+                            value = user.corporate_fax
+                            formTempData[key] = value
+
+                        if(input['name'].find("subject") != -1):
+                            browser[input['name']] = tpattern['title50']
+                            key = input['name']
+                            value = tpattern['title50']
+                            formTempData[key] = value
+                        
+                        if(input['name'].find("mail") != -1): 
+                            browser[input['name']] = user.corporate_mail
+                            key = input['name']
+                            value = user.corporate_mail
+                            formTempData[key] = value
+
+                        if(input['name'].find("furigana") != -1 \
+                        or "your-furiga" in input['name'] \
+                            or "userfuriga" in input['name'] \
+                                or "personal_furigana_name" in input['name'] \
+                                    or "name_ruby" in input['name'] \
+                                        or "ふりがな" in input['name'] ): 
+                            browser[input['name']] = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
+                            key = input['name']
+                            value = user.firstname_of_charger_firagana + user.lastname_of_charger_firagana
+                            formTempData[key] = value
+
+                        if(input['name'].find("kana-1")) != -1:
+                            browser[input['name']] = user.firstname_of_charger_firagana 
+                            key = input['name']
+                            value = user.firstname_of_charger_firagana 
+                            formTempData[key] = value
+
+                        if(input['name'].find("kana-2")) != -1:
+                            browser[input['name']] = user.lastname_of_charger_firagana 
+                            key = input['name']
+                            value = user.lastname_of_charger_firagana 
+                            formTempData[key] = value
+                        
+                        if input['name'] == "_field_3":
+                            browser[input['name']] = user.corporate_mail 
+                            key = input['name']
+                            value = user.corporate_mail 
+                            formTempData[key] = value
+                            
+
+                        if(input['name'] == "quiz-31"): 
+                            browser[input['name']] = "東京"
+                            key = input['name']
+                            value = "東京"
+                            formTempData[key] = value
+                        
+                    if(input['type'] == "tel"):
+                        if(input['name'].find("phon") != -1 \
+                            or "tel" in input['name'] \
+                                or "TEL" in input['name'] \
+                                    or "Tel" in input['name'] \
+                                        or "電話" in input['name'] \
+                                            or "phone" in input['name'] \
+                                                or "Phone" in input['name']):                             
+                            browser[input['name']] = user.corporate_phone
+                            key = input['name']
+                            value = user.corporate_phone
+                            formTempData[key] = value
+
+                        if(input['name'].find("post") != -1 \
+                            or "your-post" in input['name'] \
+                                or "postalCode" in input['name'] \
+                                    or "zip" in input['name']):
+                            browser[input['name']] = user.corporate_zipcode
+                            key = input['name']
+                            value = user.corporate_zipcode
+                            formTempData[key] = value
+                    
+                    if(input['type'] == "radio"):  
+                        b_in_dict =  input['name'] in formTempData
+                        if(b_in_dict != True):
+                            browser[input['name']] = [input['value']]
+                            key = input['name']
+                            value = [input['value']]
+                            formTempData[key] = value
+                
+                 
+            for textarea in textareas: 
+                maxLength = 0
+                try:
+                    if str(textarea).find('maxlength="') !=-1:
+                        maxLength = str(textarea).split('maxlength="')[1]
+                        maxLength = str(maxLength).split('"')[0]
+                        maxLength = int(maxLength)                         
+
+                        if 0 < maxLength <= 100: 
+                            key = textarea['name']
+                            value = tpattern['text100']
+                            formTempData[key] = value 
+
+                        if 100< maxLength < 251: 
+                            key = textarea['name']
+                            value = tpattern['text250']
+                            formTempData[key] = value
+
+                        if 250 < maxLength < 501: 
+                            key = textarea['name']
+                            value = tpattern['text500']
+                            formTempData[key] = value
+
+                        if 500 < maxLength < 1001: 
+                            key = textarea['name']
+                            value = tpattern['text1000']
+                            formTempData[key] = value
+                        
+                        else:
+                            key = textarea['name']
+                            value = tpattern['text100']
+                            formTempData[key] = value 
+
+                except:
+                    maxLength = 0
+
+                if maxLength == 0:              
+                    key = textarea['name']
+                    value = tpattern['text1000']
                     formTempData[key] = value
 
-                if(input['name'].find("post") != -1 \
-                    or "your-post" in input['name'] \
-                        or "postalCode" in input['name'] \
-                            or "zip" in input['name']):
-                    browser[input['name']] = user.corporate_zipcode
-                    key = input['name']
-                    value = user.corporate_zipcode
+
+            for select in selects:                 
+                if select['name'].find("state") != -1 \
+                    or select['name'].find("pref") != -1: 
+                    browser[select['name']] = str(user.corporate_prefecture)
+                    key = select['name'] 
+                    value = str(user.corporate_prefecture)
+                    formTempData[key] = value 
+
+                if select['name'].find("month") != -1:
+                    browser[select['name']] = str(datetime.now().month)
+                    key = select['name']
+                    value = str(datetime.now().month)
                     formTempData[key] = value
-            
-            if(input['type'] == "radio"):  
-                b_in_dict =  input['name'] in formTempData
-                if(b_in_dict != True):
-                    browser[input['name']] = [input['value']]
-                    key = input['name']
-                    value = [input['value']]
+
+                if select['name'].find("year") != -1:
+                    browser[select['name']] = str(datetime.now().year)
+                    key = select['name']
+                    value = str(datetime.now().year)
                     formTempData[key] = value
+
+                if select['name'].find("day") != -1:
+                    browser[select['name']] = str(datetime.now().day)
+                    key = select['name']
+                    value = str(datetime.now().day)
+                    formTempData[key] = value
+
+                else:
+                    option = select.select('option') 
+                    browser[select['name']] = [option[2]['value']]
+                    key = select['name'] 
+                    value = option[2]['value']
+                    formTempData[key] = value  
+
+            for checkbox in checkboxes:                  
+                checkbox.selected =True
+                key = checkbox['name']
+                value = True
+                formTempData[key] = value 
+
             
-
-        for textarea in textareas: 
-            
-            browser[textarea['name']] = tpattern['text1000']
-            key = textarea['name']
-            value = tpattern['text1000']
-            formTempData[key] = value 
-
-
-        for select in selects: 
-            
-            option = select.select('option') 
-            browser[select['name']] = [option[0]['value']]
-            key = select['name']
-            value = option[0]['value']
-            formTempData[key] = value   
-
-        for checkbox in checkboxes:  
-            
-            checkbox.selected =True
-            key = checkbox['name']
-            value = True
-            formTempData[key] = value 
-
-        
-        if(sitekey == ""):
-            response = browser.submit()
-            content = response.read() 
-            soup = BeautifulSoup(content, "html.parser")  
-            form = soup.find('form')   
-            # print(form) 
-            if("失敗" in str(form) or "後でまたお試" in str(form) or "エラー" in str(form) or "問題があります" in str(form)):
-                subtotal_result.append({"status":"fail", "data": main_data })  
-                # print(form)                  
-
-            else:
+            if(sitekey == ""):
+                response = browser.submit()
                 cuurl = response.geturl()
                 urlArr = cuurl.split("/")
 
@@ -2360,6 +3246,7 @@ def reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, res
                     i = i + 1
 
                 naction = form['action'] 
+                httpnaction = form['action'] 
                 
                 if(naction.find('./') != -1):
                     naction = naction.replace('./', "")   
@@ -2369,60 +3256,96 @@ def reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, res
                 
                 comUrl = urlFirst + naction  
 
-                checkStr = soup.find_all("form")
-                checkStr = str(checkStr)
+                if httpnaction.find("http") != -1:
+                    comUrl = httpnaction
 
-                if "送信" in str(soup.find_all("form")) \
-                    and "submit" in str(soup.find_all("form") \
-                        or checkStr.count("修正する") > 0 \
-                            or checkStr.count("戻") > 0):
-                
-                    cinputs = form.find_all('input') 
+                if URL.find(httpnaction) != -1:
+                    comUrl = URL     
+
+                request_ans = requests.post(comUrl, data=formTempData)  
+                responsePageHTML = BeautifulSoup(request_ans.content, "html.parser") 
+
+                if str(responsePageHTML).find("入力内容に問題があります") != -1 \
+                    or str(responsePageHTML).find("確認して再度お試し") != -1 \
+                        or str(responsePageHTML).find("404 Not Found") != -1:
+                    total_result.append({"status":"fail", "data": main_data }) 
+
+                else:
+                    subtotal_result.append({"status":"success", "data": main_data })   
+
                     
-                    for cd in cinputs:
+            else:                 
+                if(rd == ""):
+                    subtotal_result.append({"status":"fail", "data": main_data }) 
 
-                        if(cd['type'] == 'submit'):
-                            if( cd.has_attr('name')):
-                                key = cd['name']
-                                value = "submit button"
-                                formTempData[key] = value 
-                            else:
-                                key = ''
-                                value = "submit"
-                                formTempData[key] = value 
-                    
-                    request_ans = requests.post(comUrl, data=formTempData)    
-                    ans_html = BeautifulSoup(request_ans.content, "html.parser") 
-                    print("OK===================")                                     
-                    subtotal_result.append({"status":"success", "data": main_data }) 
-        else:
-            req_data_str = str(rd)
-            if(req_data_str.count('ERROR') > 0 or req_data_str.count('CAPCHA_NOT_READY') > 0):
-                subtotal_result.append({"status":"fail", "data": main_data }) 
+                else:
+                    if(flag == False): 
 
-            else:
-                if(flag == False): 
-                    formTempData['g-recaptcha-response'] = req_data_str
-                    request_ans = requests.post(URL, data=formTempData)
-                    ans_html = BeautifulSoup(request_ans.content, "html.parser") 
-                    # print(ans_html) 
-                    subtotal_result.append({"status":"success", "data": main_data })                     
+                        urlArr = URL.split("/")
+                        urlFirst = ''
+                        i = 0
+                        for u in urlArr:
+                            if(i < len(urlArr) - 1):
+                                urlFirst = urlFirst + u + "/"
+                            i = i + 1
+                        
+                        
+                        if isinstance(form['action'], NoneType): 
+                            return
+                        naction = str(form['action'] )
+                        httpnaction = str(form['action'] )
+                        
+                        if(naction.find('./') != -1):
+                            naction = naction.replace('./', "")   
 
-    if(ContactMail != "" and URL == ""):                
-        subtotal_result.append({"status":"mail", "data": main_data })                
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to=[user.email]
-        subject = "お問い合わせメッセージが届きました。"
-        message = "お問い合わせメッセージが届きました。"
-        html = '\
-        <h4>タイトル</h4><br/>\
-        '+ tpattern['title50'] +'<br/>\
-        <h4>内容</h4><br/>\
-        ーーーーーーーーーーーーーーーーーーーーーーーーーーー<br/>\
-        <br/>\
-        ' + tpattern['text1000'] + '<br/>'
+                        if(naction.find('/') != -1):
+                            naction = naction.replace('/', "")              
+                        
+                        comUrl = urlFirst + naction  
 
-        send_mail(subject, message, from_email, to, html_message=html)
+                        if httpnaction.find("http") != -1:
+                            comUrl = httpnaction
+
+                        if URL.find(httpnaction) != -1:
+                                comUrl = URL
+
+                        site_url = comUrl
+ 
+                        formTempData['g-recaptcha-response'] = rd 
+
+                        request_ans = requests.post(site_url, data=formTempData) 
+                        ans_html = BeautifulSoup(request_ans.content, "html.parser") 
+                        if str(ans_html).find("入力内容に問題があります") != -1 \
+                                or str(responsePageHTML).find("確認して再度お試し") != -1 \
+                                    or str(responsePageHTML).find("404 Not Found") != -1:
+
+                            subtotal_result.append({"status":"fail", "data": main_data })
+
+                        else:
+                            subtotal_result.append({"status":"success", "data": main_data })                     
+
+        except Exception as e: 
+            subtotal_result.append({"status":"success", "data": main_data })
+    
+    if(ContactMail != "" and URL == ""):   
+        try:
+            subtotal_result.append({"status":"mail", "data": main_data })                
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to=[user.email]
+            subject = "お問い合わせメッセージが届きました。"
+            message = "お問い合わせメッセージが届きました。"
+            html = '\
+            <h4>タイトル</h4><br/>\
+            '+ tpattern['title50'] +'<br/>\
+            <h4>内容</h4><br/>\
+            ーーーーーーーーーーーーーーーーーーーーーーーーーーー<br/>\
+            <br/>\
+            ' + tpattern['text1000'] + '<br/>'
+
+            send_mail(subject, message, from_email, to, html_message=html)
+
+        except Exception as e: 
+            subtotal_result.append({"status":"success", "data": main_data })
 
     if(ContactMail == "" and URL == ""):      
         subtotal_result.append({"status":"fail", "data": main_data })   
@@ -2477,179 +3400,290 @@ def reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, res
 
 
 
-def sendManuallySubFunction(data, user, tpattern):
+
+
+def sendManuallySubFunction(data, user, tpattern): 
     for d in data['rows']:
         URL = d['contact_url']                                
         ContactMail = d['mailaddress']
 
-        if(URL != ""):            
-            page = requests.get(URL) 
-            soup = BeautifulSoup(page.content, "html.parser")      
-            
-            global html_str, form_datas, site_url
+        global html_str, html_strs, all_form_datas, form_datas, site_urls, site_url
 
-            html_str = str(soup)            
-
-            form = soup.find('form') 
-
-
-            urlArr = URL.split("/")
-
-            urlFirst = ''
-            i = 0
-            for u in urlArr:
-                if(i < len(urlArr) - 1):
-                    urlFirst = urlFirst + u + "/"
-                i = i + 1
-
-            naction = str(form['action'] )
-            
-            if(naction.find('./') != -1):
-                naction = naction.replace('./', "")   
-
-            if(naction.find('/') != -1):
-                naction = naction.replace('/', "")              
-            
-            comUrl = urlFirst + naction  
-
-            site_url = comUrl
-
-            inputs = form.find_all('input') 
-            textareas = form.find_all('textarea') 
-            checkboxes = form.find_all(type = 'checkbox') 
-            selects = form.select('select')    
-
-
-            for input in inputs:                  
-                if(input['type'] == "email"):                                                               
-                    form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_mail})
-
-                if(input['type'] == "text"):
-                    if(input['name'].find("name") != -1 \
-                    or r"user_name" in input['name'] \
-                        or r"your-name" in input['name'] \
-                        or "contact_name" in input['name'] \
-                            or "名前" in input['name'] \
-                                or "f4a6f2b" in input['name'] \
-                                    or "担当者" in input['name'] \
-                                        or "氏名" in input['name'] \
-                                            or "name" == input['name'] \
-                                                or "name1" == input['name'] \
-                                                    or "text-978" == input['name'] \
-                                                        or "firstname" == input['name'] \
-                                                            or "full_name" == input['name'] \
-                                                                or "customer_name" == input['name'] \
-                                                                    or "namae" in input['name'] \
-                                                                        or "form_fields[name]" in input['name']):                         
-                        
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.firstname_of_charger + user.lastname_of_charger})
-                       
-                    if( "姓" == input['name'] \
-                        or "firstName" == input['name'] \
-                            or "first_name" == input['name'] \
-                                or "name1" == input['name'] \
-                                    or "FirstName" in input['name'] \
-                                        or "firstname" in input['name'] ):  
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.firstname_of_charger})                        
-                        
-                    if( "lastName" == input['name'] \
-                        or "name2" == input['name'] \
-                            or "名" == input['name'] \
-                                or "LastName" == input['name'] \
-                                    or "name3" in input['name'] \
-                                        or "lastname" in input['name'] ): 
-                        
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.lastname_of_charger})   
-
-                    if(input['name'].find("comp") != -1 \
-                        or input['name'].find("cname") != -1 \
-                        or "organization" in input['name'] \
-                        or "your-company" in input['name'] \
-                        or "company-name" in input['name'] \
-                        or "kaisha-name" in input['name'] \
-                        or "company" == input['name'] \
-                        or "contact_company" == input['name'] \
-                        or "campany" in input['name'] \
-                        or "your-corp" in input['name'] \
-                        or "corporate" in input['name'] \
-                        or "企業" in input['name'] \
-                        or "社名" in input['name'] \
-                        or "text-978" == input['name'] \
-                        or "Company" in input['name'] \
-                        or "company3" == input['name'] \
-                        or "form_fields[company]" in input['name'] \
-                        or "text-819" == input['name']
-                    ): 
-                        
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.coporate_name})                                                 
-
-                    if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
-                        or "your-post" in input['name'] \
-                            or "zip" in input['name'] \
-                                or "code" in input['name']):
-
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_zipcode})   
-
-                    if(input['name'].find("phon") != -1 \
-                        or "tel" in input['name'] \
-                            or "TEL" in input['name'] \
-                                or "Tel" in input['name'] \
-                                    or "電話" in input['name'] \
-                                        or "phone" in input['name'] \
-                                            or "Phone" in input['name']):  
-
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_phone}) 
-                        
-                    if(input['name'].find("fax") != -1):
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_fax})       
-
-                    if(input['name'].find("subject") != -1):
-                        form_datas.append({"tag":"input", "name":input['name'], "value":tpattern['title50']})          
-                    
-                    if(input['name'].find("mail") != -1): 
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_mail})  
-
-                    if(input['name'].find("furigana") != -1 \
-                        or "your-furiga" in input['name'] \
-                            or "userfuriga" in input['name'] \
-                                or "personal_furigana_name" in input['name'] \
-                                    or "name_ruby" in input['name'] \
-                                        or "ふりがな" in input['name'] ): 
-                        
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.firstname_of_charger_firagana + user.lastname_of_charger_firagana})  
-                         
-                    if(input['name'] == "quiz-31"): 
-                        form_datas.append({"tag":"input", "name":input['name'], "value":"東京"})   
-                    
-                if(input['type'] == "tel"):
-                    if(input['name'].find("phon") != -1 \
-                        or "tel" in input['name'] \
-                            or "TEL" in input['name'] \
-                                or "Tel" in input['name'] \
-                                    or "電話" in input['name'] \
-                                        or "phone" in input['name'] \
-                                            or "Phone" in input['name']):   
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_phone})
-                        
-
-                    if(input['name'].find("post") != -1 \
-                        or "your-post" in input['name'] \
-                            or "postalCode" in input['name'] \
-                                or "zip" in input['name']):
-
-                        form_datas.append({"tag":"input", "name":input['name'], "value":user.corporate_zipcode}) 
+        try:
+            if(URL != ""):               
+                page = requests.get(URL)
+                soup = BeautifulSoup(page.content, "html.parser") 
                 
-                if(input['type'] == "radio"):  
-                    form_datas.append({"tag":"input", "name":input['name'], "value":"radio"}) 
+                html_str = str(soup)            
 
-            for textarea in textareas:  
-                form_datas.append({"tag":"textarea", "name":textarea['name'], "value":tpattern['text1000']})                             
+                form = soup.find('form') 
+                  
+                if isinstance(form, NoneType):
+                    continue
 
-            for select in selects: 
-                form_datas.append({"tag":"select", "name":select['name'], "value":"select"})     
-                               
+                urlArr = URL.split("/")
 
-            for checkbox in checkboxes:   
-                form_datas.append({"tag":"checkbox", "name":checkbox['name'], "value":"checkbox"})                 
-             
+                urlFirst = ''
+                i = 0
+                for u in urlArr:
+                    if(i < len(urlArr) - 1):
+                        urlFirst = urlFirst + u + "/"
+                    i = i + 1
+                
+                
+                if isinstance(form['action'], NoneType): 
+                    continue
+                naction = str(form['action'] )
+                httpnaction = str(form['action'])
+                
+                if(naction.find('./') != -1):
+                    naction = naction.replace('./', "")   
+
+                if(naction.find('/') != -1):
+                    naction = naction.replace('/', "")              
+                
+                comUrl = urlFirst + naction  
+
+                if httpnaction.find("http") != -1:
+                    comUrl = httpnaction
+
+                site_url = comUrl
+    
+
+                inputs = form.find_all('input') 
+                textareas = form.find_all('textarea') 
+                checkboxes = form.find_all(type = 'checkbox') 
+                selects = form.select('select')                    
+                 
+                
+                for input in inputs:  
+                    hasType = True
+                    checkType = ""
+                    try:
+                        checkType = input['type']
+                    except:
+                        hasType = False
+                    if hasType == True: 
+                        if(input['name'].find("_field_3_confirm")) != -1:
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})
+
+                        if(input['type'] == "email"):                                                               
+                            form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})
+                            print("HERE============", input['type'])
+                        
+                        if(input['type'] == "text"):
+                            if input['name'].find("city") != -1:
+                                print("HERE========city====")
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_city)})
+                            
+                            if input['name'].find("chomei") != -1:
+                                print("HERE========chomei====")
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_address)})
+
+                            if input['name'].find("tatemono") != -1:
+                                print("HERE========tatemono====")
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_building_name)})
+
+                            if input['name'].find("date") != -1:     
+                                curtime = datetime.now()                            
+                                if input['name'].find("year") != -1:
+                                    form_datas.append({"tag":"input", "name":input['name'], "value":str(datetime.strftime(curtime, '%Y'))})                                    
+
+                                if input['name'].find("month") != -1:
+                                    form_datas.append({"tag":"input", "name":input['name'], "value":str(datetime.strftime(curtime, '%m'))})                                     
+
+                                if input['name'].find("day") != -1:
+                                    form_datas.append({"tag":"input", "name":input['name'], "value":str(datetime.strftime(curtime, '%d'))})   
+
+                                else:
+                                    form_datas.append({"tag":"input", "name":input['name'], "value":str(datetime.strftime(curtime, '%Y-%m-%d'))})  
+
+
+                            if(input['name'].find("name") != -1 \
+                                or r"user_name" in input['name'] \
+                                or r"your-name" in input['name'] \
+                                    or "_field_1_name" in input['name'] \
+                                    or "tkna001" in input['name'] \
+                                        or "_field_1_name_katakana" in input['name'] \
+                                or "contact_name" in input['name'] \
+                                    or "名前" in input['name'] \
+                                        or "f4a6f2b" in input['name'] \
+                                            or "担当者" in input['name'] \
+                                                or "氏名" in input['name'] \
+                                                    or "name" == input['name'] \
+                                                        or "name1" == input['name'] \
+                                                            or "text-978" == input['name'] \
+                                                                or "firstname" == input['name'] \
+                                                                    or "full_name" == input['name'] \
+                                                                        or "customer_name" == input['name'] \
+                                                                            or "namae" in input['name'] \
+                                                                                or "form_fields[name]" in input['name']):                         
+                                
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.firstname_of_charger) + str(user.lastname_of_charger)})
+                            
+                            if( "姓" == input['name'] \
+                                or "firstName" == input['name'] \
+                                    or "first_name" == input['name'] \
+                                        or "name1" == input['name'] \
+                                        or "name-1" == input['name'] \
+                                            or "FirstName" in input['name'] \
+                                                or "firstname" in input['name'] ):  
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.firstname_of_charger)})                        
+                                 
+                            if( "lastName" == input['name'] \
+                                or "name2" == input['name'] \
+                                    or "名" == input['name'] \
+                                        or "LastName" == input['name'] \
+                                            or "name3" in input['name'] \
+                                            or "name-2" in input['name'] \
+                                                or "lastname" in input['name'] ): 
+                                
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.lastname_of_charger)})   
+                                   
+                            if(input['name'].find("comp") != -1 \
+                                or input['name'].find("cname") != -1 \
+                                or "organization" in input['name'] \
+                                or "your-company" in input['name'] \
+                                or "company-name" in input['name'] \
+                                or "_field_2" in input['name'] \
+                                or "kaisha-name" in input['name'] \
+                                or "company" == input['name'] \
+                                or "contact_company" == input['name'] \
+                                or "campany" in input['name'] \
+                                or "your-corp" in input['name'] \
+                                or "corporate" in input['name'] \
+                                or "企業" in input['name'] \
+                                or "社名" in input['name'] \
+                                or "text-978" == input['name'] \
+                                or "Company" in input['name'] \
+                                or "company3" == input['name'] \
+                                or "form_fields[company]" in input['name'] \
+                                or "text-819" == input['name']
+                            ): 
+                                
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.coporate_name)})                                                 
+                                
+                            if(input['name'].find("post") != -1 or input['name'].find("add") != -1 \
+                                or "your-post" in input['name'] \
+                                    or "zip" in input['name'] \
+                                        or "code" in input['name']):
+
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_zipcode)})   
+                                
+                            if(input['name'].find("phon") != -1 \
+                                or "tel" in input['name'] \
+                                    or "TEL" in input['name'] \
+                                        or input['name'].find("tkph") != -1 \
+                                        or input['name'].find("tel") != -1 \
+                                        or "Tel" in input['name'] \
+                                            or "電話" in input['name'] \
+                                                or "phone" in input['name'] \
+                                                    or "Phone" in input['name']):  
+
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_phone)}) 
+                                
+                            if(input['name'].find("fax") != -1):
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_fax)})       
+                                
+                            if(input['name'].find("subject") != -1):
+                                form_datas.append({"tag":"input", "name":input['name'], "value":tpattern['title50']})          
+                                
+                            if(input['name'].find("mail") != -1): 
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})  
+                                
+                            if(input['name'].find("furigana") != -1 \
+                                or "your-furiga" in input['name'] \
+                                    or "userfuriga" in input['name'] \
+                                        or "personal_furigana_name" in input['name'] \
+                                            or "name_ruby" in input['name'] \
+                                                or "ふりがな" in input['name'] ): 
+                                
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.firstname_of_charger_firagana) + str(user.lastname_of_charger_firagana)})  
+
+                            if(input['name'].find("kana-1")) != -1:
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.firstname_of_charger_firagana)})                              
+
+                            if input['name'] == "_field_3":
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})                              
+                            
+                            if(input['name'].find("_field_3_confirm")) != -1:
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})                              
+
+                            if(input['name'].find("kana-2")) != -1:
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.lastname_of_charger_firagana)}) 
+                                
+                            if(input['name'] == "quiz-31"): 
+                                form_datas.append({"tag":"input", "name":input['name'], "value":"東京"}) 
+
+                        if input['type'] == "tel":
+                            if(input['name'].find("phon") != -1 \
+                                or "tel" in input['name'] \
+                                    or "TEL" in input['name'] \
+                                        or "Tel" in input['name'] \
+                                            or "電話" in input['name'] \
+                                                or "phone" in input['name'] \
+                                                    or "Phone" in input['name']):   
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_phone)})
+                                
+
+                            if(input['name'].find("post") != -1 \
+                                or "your-post" in input['name'] \
+                                    or "postalCode" in input['name'] \
+                                        or "zip" in input['name']):
+
+                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_zipcode)}) 
+                                
+
+                        if(input['type'] == "radio"):  
+                            form_datas.append({"tag":"input", "name":input['name'], "value":input['value']})
+
+                        if(input['type'] == "hidden"):  
+                            hasVal = True
+                            checkVal = ""
+                            try:
+                                checkVal = input['value']
+                            except:
+                                hasVal = False
+                            if hasVal:
+                                form_datas.append({"tag":"input", "name":input['name'], "value":input['value']})
+                    else:
+                        if(input['name'].find("_field_3_confirm")) != -1:
+                            form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})         
+                
+                for textarea in textareas:  
+                    form_datas.append({"tag":"textarea", "name":textarea['name'], "value":tpattern['text1000']})   
+
+                for select in selects: 
+                    if select['name'].find("state") != -1 \
+                        or select['name'].find("pref") != -1: 
+                        form_datas.append({"tag":"select", "name":select['name'], "value":str(user.corporate_prefecture)})     
+                    
+                    if select['name'].find("month") != -1:
+                        form_datas.append({"tag":"select", "name":select['name'], "value":str(datetime.now().month)})
+
+                    if select['name'].find("year") != -1:
+                        form_datas.append({"tag":"select", "name":select['name'], "value":str(datetime.now().year)})
+                         
+                    if select['name'].find("day") != -1:
+                        form_datas.append({"tag":"select", "name":select['name'], "value":str(datetime.now().day)})
+                         
+                    else:
+                        option = select.select('option') 
+                        form_datas.append({"tag":"select", "name":select['name'], "value":option[2]['value']})         
+
+                for checkbox in checkboxes:   
+                    form_datas.append({"tag":"checkbox", "name":checkbox['name'], "value":"checkbox"})      
+
+                html_strs.append({"page_html": html_str})            
+                all_form_datas.append({"page_form_data": form_datas})
+                site_urls.append({"page_site_url": site_url})                
+
+                html_str = ""
+                form_datas = []
+                site_url = ""
+
+        except Exception as e:  
+            html_strs.append({"page_html": ""})            
+            all_form_datas.append({"page_form_data": []})
+            site_urls.append({"page_site_url": ""})             
 

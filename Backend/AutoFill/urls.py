@@ -4,7 +4,7 @@ from Backend.AutoFill.views import UserRegisterView, UserLoginView, VerifyEmail,
     Copydmtextrows, Deletedmtextrows, EditedDmtextSave, GetAllDMGroupData, SaveAllDMGroupData, Deletdmgroup, CsvImport, DMlistsSave, GetAllDMlists, \
     Deletedmlists, SaveEditedListdata, AddDMLists, GetFormData, GetGroupAndTextPattern, InterruptSendDM, ManualSendDM, Stopcsvimport, GetAllStoplists, \
     Deletestoplist, GetallStatus, GetallUsers, UserCreateSubscription, GetPaymentStatus, SavePaymentMethod, SavePricePlan, CreateCheckoutSessionView, \
-    UpdateAccountInfo, IsAdmin, GetBasicInfo
+    UpdateAccountInfo, GetBasicInfo, SetOptionPrice, WebhookView, UpdateSubscription, SetPaymentasBank, AdminLoginView
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
@@ -50,11 +50,16 @@ urlpatterns = [
     path('createcheckoutsession', CreateCheckoutSessionView.as_view()),
     path('getpaymentstatu_getpagedata', GetPaymentStatus.as_view()),    
     path('savepaymentmethod', SavePaymentMethod.as_view()),    
-    path('savepriceplan', SavePricePlan.as_view()),    
-    path('getbasicinfo', GetBasicInfo.as_view()),    
+    path('savepriceplan', SavePricePlan.as_view()),   
+    path('setoptionprice', SetOptionPrice.as_view()),        
+    path('getbasicinfo', GetBasicInfo.as_view()),  
+    path('updatepricceplan', UpdateSubscription.as_view()), 
+    path('webhook', WebhookView.as_view()),    
+    path('setPaymentasBank', SetPaymentasBank.as_view()),    
+    
 
     # Admin part
-    path('isadmin', IsAdmin.as_view()),    
+    path('admin_login', AdminLoginView.as_view()), 
 
 
 
