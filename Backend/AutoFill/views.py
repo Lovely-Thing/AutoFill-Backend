@@ -70,6 +70,7 @@ class UserRegisterView(CreateAPIView):
         verificationCode = random_with_N_digits(6)
         user.verificationcode = verificationCode
         user.save() 
+        print(verificationCode)
         subject = '正常に登録しました。'
         message = '検証コード' + str(verificationCode)
 
@@ -213,6 +214,7 @@ class BasicInfoRegisteration(APIView):
         user.lastname_of_charger_firagana = basicdata['lastname_of_charger_firagana']
         user.charger_prefecture = basicdata['charger_prefecture']
         user.choice_word = basicdata['choice_word'] 
+        user.companyname_position = basicdata['companyname_position']         
         oldavatar = user.avatar
         avatarimgFile =  request.FILES.get('avatar', '')
         fs = FileSystemStorage()
@@ -228,6 +230,7 @@ class BasicInfoRegisteration(APIView):
         status_code = status.HTTP_200_OK
         response = {
             'success':'True',
+            'avatar': user.avatar,
             'status code': status_code,
             'type':'Profile Update'
         }
@@ -424,6 +427,28 @@ class DMtextSet(APIView):
         user = request.user
         data = request.data  
 
+        data['text2000'] = data['text2000'].replace("{company-type}", str(user.company_type))
+        data['text2000'] = data['text2000'].replace("{client-frigana}", str(user.corporate_furigana))
+        data['text2000'] = data['text2000'].replace("{client-postcode}", str(user.corporate_zipcode))
+        data['text2000'] = data['text2000'].replace("{client-country}", str(user.corporate_country))
+        data['text2000'] = data['text2000'].replace("{client-prefecture}", str(user.corporate_prefecture))
+        data['text2000'] = data['text2000'].replace("{client-city}", str(user.corporate_city))
+        data['text2000'] = data['text2000'].replace("{client-address}", str(user.corporate_address))
+        data['text2000'] = data['text2000'].replace("{client-buildingname}", str(user.corporate_building_name))
+        data['text2000'] = data['text2000'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+        data['text2000'] = data['text2000'].replace("{client-establishdate}", str(user.corporate_estable_date))
+        data['text2000'] = data['text2000'].replace("{client-phone}", str(user.corporate_phone))
+        data['text2000'] = data['text2000'].replace("{client-fax}", str(user.corporate_fax))
+        data['text2000'] = data['text2000'].replace("{client-mailaddress}", str(user.corporate_mail))
+        data['text2000'] = data['text2000'].replace("{client-homepage}", str(user.corporate_homepage))
+        data['text2000'] = data['text2000'].replace("{staff-firstname}", str(user.firstname_of_charger))
+        data['text2000'] = data['text2000'].replace("{staff-lastname}", str(user.lastname_of_charger))
+        data['text2000'] = data['text2000'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+        data['text2000'] = data['text2000'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+        data['text2000'] = data['text2000'].replace("{staff-address}", str(user.charger_prefecture))
+        data['text2000'] = data['text2000'].replace("{staff-phone}", str(user.charger_phone))
+        data['text2000'] = data['text2000'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
+
         data['text1000'] = data['text1000'].replace("{company-type}", str(user.company_type))
         data['text1000'] = data['text1000'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text1000'] = data['text1000'].replace("{client-postcode}", str(user.corporate_zipcode))
@@ -444,6 +469,7 @@ class DMtextSet(APIView):
         data['text1000'] = data['text1000'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
         data['text1000'] = data['text1000'].replace("{staff-address}", str(user.charger_prefecture))
         data['text1000'] = data['text1000'].replace("{staff-phone}", str(user.charger_phone))
+        data['text1000'] = data['text1000'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
 
         data['text500'] = data['text500'].replace("{company-type}", str(user.company_type))
         data['text500'] = data['text500'].replace("{client-frigana}", str(user.corporate_furigana))
@@ -465,8 +491,10 @@ class DMtextSet(APIView):
         data['text500'] = data['text500'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
         data['text500'] = data['text500'].replace("{staff-address}", str(user.charger_prefecture))
         data['text500'] = data['text500'].replace("{staff-phone}", str(user.charger_phone))
+        data['text500'] = data['text500'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
 
         data['text250'] = data['text250'].replace("{company-type}", str(user.company_type))
+        data['text250'] = data['text250'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text250'] = data['text250'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text250'] = data['text250'].replace("{client-postcode}", str(user.corporate_zipcode))
         data['text250'] = data['text250'].replace("{client-country}", str(user.corporate_country))
@@ -488,6 +516,7 @@ class DMtextSet(APIView):
         data['text250'] = data['text250'].replace("{staff-phone}", str(user.charger_phone))
 
         data['text100'] = data['text100'].replace("{company-type}", str(user.company_type))
+        data['text100'] = data['text100'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text100'] = data['text100'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text100'] = data['text100'].replace("{client-postcode}", str(user.corporate_zipcode))
         data['text100'] = data['text100'].replace("{client-country}", str(user.corporate_country))
@@ -509,9 +538,11 @@ class DMtextSet(APIView):
         data['text100'] = data['text100'].replace("{staff-phone}", str(user.charger_phone)) 
 
         DMtextSetModel.objects.create(
+            dmTitle = data['dmTitle'], 
             title50 = data['title50'], 
             title25 = data['title25'], 
             title10 = data['title10'], 
+            text2000 = data['text2000'], 
             text1000 = data['text1000'], 
             text500 = data['text500'], 
             text250 = data['text250'], 
@@ -579,7 +610,7 @@ class GetDMAlltextdata(APIView):
         if(user.charger_phone != None):
             userdata.append({"data": user.charger_phone, "name":"担当電話番号", "mark":"staff-phone"})
          
-        alldmtext = DMtextSetModel.objects.filter(Q(user=user)).values('pk', 'title50', 'title25', 'title10', 'text1000', 'text500', 'text250', 'text100', 'register_date', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count' )
+        alldmtext = DMtextSetModel.objects.filter(Q(user=user)).values('pk', 'dmTitle', 'title50', 'title25', 'title10', 'text2000', 'text1000', 'text500', 'text250', 'text100', 'register_date', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count' )
         
         status_code = status.HTTP_200_OK
         response = {
@@ -601,9 +632,11 @@ class Copydmtextrows(APIView):
         d = request.data 
          
         DMtextSetModel.objects.create(
+            dmTitle = d['name'], 
             title50 = d['title50'], 
             title25 = d['title25'], 
             title10 = d['title10'], 
+            text2000 = d['text2000'], 
             text1000 = d['text1000'], 
             text500 = d['text500'], 
             text250 = d['text250'], 
@@ -649,7 +682,32 @@ class EditedDmtextSave(APIView):
     def post(self, request): 
         user = request.user 
         data = request.data   
+
+        if data['text2000'] != None:
+            data['text2000'] = data['text2000'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
+            data['text2000'] = data['text2000'].replace("{company-type}", str(user.company_type))
+            data['text2000'] = data['text2000'].replace("{client-frigana}", str(user.corporate_furigana))
+            data['text2000'] = data['text2000'].replace("{client-postcode}", str(user.corporate_zipcode))
+            data['text2000'] = data['text2000'].replace("{client-country}", str(user.corporate_country))
+            data['text2000'] = data['text2000'].replace("{client-prefecture}", str(user.corporate_prefecture))
+            data['text2000'] = data['text2000'].replace("{client-city}", str(user.corporate_city))
+            data['text2000'] = data['text2000'].replace("{client-address}", str(user.corporate_address))
+            data['text2000'] = data['text2000'].replace("{client-buildingname}", str(user.corporate_building_name))
+            data['text2000'] = data['text2000'].replace("{client-roomnumber}", str(user.corporate_address_room_number))
+            data['text2000'] = data['text2000'].replace("{client-establishdate}", str(user.corporate_estable_date))
+            data['text2000'] = data['text2000'].replace("{client-phone}", str(user.corporate_phone))
+            data['text2000'] = data['text2000'].replace("{client-fax}", str(user.corporate_fax))
+            data['text2000'] = data['text2000'].replace("{client-mailaddress}", str(user.corporate_mail))
+            data['text2000'] = data['text2000'].replace("{client-homepage}", str(user.corporate_homepage))
+            data['text2000'] = data['text2000'].replace("{staff-firstname}", str(user.firstname_of_charger))
+            data['text2000'] = data['text2000'].replace("{staff-lastname}", str(user.lastname_of_charger))
+            data['text2000'] = data['text2000'].replace("{staff-friganafirstname}", str(user.firstname_of_charger_firagana))
+            data['text2000'] = data['text2000'].replace("{staff-friganalastname}", str(user.lastname_of_charger_firagana))
+            data['text2000'] = data['text2000'].replace("{staff-address}", str(user.charger_prefecture))
+            data['text2000'] = data['text2000'].replace("{staff-phone}", str(user.charger_phone))
+
         data['text1000'] = data['text1000'].replace("{company-type}", str(user.company_type))
+        data['text1000'] = data['text1000'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text1000'] = data['text1000'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text1000'] = data['text1000'].replace("{client-postcode}", str(user.corporate_zipcode))
         data['text1000'] = data['text1000'].replace("{client-country}", str(user.corporate_country))
@@ -671,6 +729,7 @@ class EditedDmtextSave(APIView):
         data['text1000'] = data['text1000'].replace("{staff-phone}", str(user.charger_phone))
 
         data['text500'] = data['text500'].replace("{company-type}", str(user.company_type))
+        data['text500'] = data['text500'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text500'] = data['text500'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text500'] = data['text500'].replace("{client-postcode}", str(user.corporate_zipcode))
         data['text500'] = data['text500'].replace("{client-country}", str(user.corporate_country))
@@ -691,6 +750,7 @@ class EditedDmtextSave(APIView):
         data['text500'] = data['text500'].replace("{staff-address}", str(user.charger_prefecture))
         data['text500'] = data['text500'].replace("{staff-phone}", str(user.charger_phone))
 
+        data['text250'] = data['text250'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text250'] = data['text250'].replace("{company-type}", str(user.company_type))
         data['text250'] = data['text250'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text250'] = data['text250'].replace("{client-postcode}", str(user.corporate_zipcode))
@@ -712,6 +772,7 @@ class EditedDmtextSave(APIView):
         data['text250'] = data['text250'].replace("{staff-address}", str(user.charger_prefecture))
         data['text250'] = data['text250'].replace("{staff-phone}", str(user.charger_phone))
 
+        data['text100'] = data['text100'].replace("{client-name}", str(user.firstname_of_charger) + str(user.lastname_of_charger))
         data['text100'] = data['text100'].replace("{company-type}", str(user.company_type))
         data['text100'] = data['text100'].replace("{client-frigana}", str(user.corporate_furigana))
         data['text100'] = data['text100'].replace("{client-postcode}", str(user.corporate_zipcode))
@@ -735,10 +796,12 @@ class EditedDmtextSave(APIView):
 
          
         dmtextrow = DMtextSetModel.objects.filter(Q(id = data['tableID']) & Q(user = user)).first() 
+        dmtextrow.dmTitle = data['dmTitle']         
         dmtextrow.title50 = data['title50']         
         dmtextrow.title25 = data['title25']         
         dmtextrow.title10 = data['title10']         
         dmtextrow.text1000 = data['text1000']         
+        dmtextrow.text2000 = data['text2000']         
         dmtextrow.text500 = data['text500']         
         dmtextrow.text250 = data['text250']         
         dmtextrow.text100 = data['text100']   
@@ -1231,14 +1294,40 @@ class AddDMLists(APIView):
 
         dmgroup = DMGroupModel.objects.filter(Q(id = data['groupid'])).first() 
          
+        corporate_name = ""
+        mailaddress = ""
+        contact_url = ""
+        site_url = ""
+        phone = ""
+
         if(data['method'] == '1'):            
-            for d in data['data']:                  
+            for d in data['data']:  
+                try:
+                    corporate_name = d['corporate_name']
+                except:
+                    corporate_name = ""        
+                try:
+                    mailaddress = d['mailaddress']
+                except:
+                    mailaddress = "" 
+                try:
+                    contact_url = d['contact_url']
+                except:
+                    contact_url = "" 
+                try:
+                    site_url = d['site_url']
+                except:
+                    site_url = ""        
+                try:
+                    phone = d['phone']
+                except:
+                    phone = "" 
                 PerDMGroupDmListModel.objects.create(
-                    name = d['corporate_name'],
-                    mailaddress = d['mailaddress'],
-                    contact_url = d['contact_url'],
-                    site_url = d['site_url'],
-                    phone_num = d['phone'],
+                    name = corporate_name,
+                    mailaddress = mailaddress,
+                    contact_url = contact_url,
+                    site_url = site_url,
+                    phone_num = phone,
                     auto_manual =  "手動", 
                     user = user,     
                     dmgroup = dmgroup,       
@@ -1249,12 +1338,32 @@ class AddDMLists(APIView):
             for listscount in listscounts:
                 listscount.delete() 
             for d in data['data']: 
+                try:
+                    corporate_name = d['corporate_name']
+                except:
+                    corporate_name = ""        
+                try:
+                    mailaddress = d['mailaddress']
+                except:
+                    mailaddress = "" 
+                try:
+                    contact_url = d['contact_url']
+                except:
+                    contact_url = "" 
+                try:
+                    site_url = d['site_url']
+                except:
+                    site_url = ""        
+                try:
+                    phone = d['phone']
+                except:
+                    phone = "" 
                 PerDMGroupDmListModel.objects.create(
-                    name = d['corporate_name'],
-                    mailaddress = d['mailaddress'],
-                    contact_url = d['contact_url'],
-                    site_url = d['site_url'],
-                    phone_num = d['phone'],
+                    name = corporate_name,
+                    mailaddress = mailaddress,
+                    contact_url = contact_url,
+                    site_url = site_url,
+                    phone_num = phone,
                     auto_manual =  "手動", 
                     user = user,     
                     dmgroup = dmgroup,       
@@ -1278,7 +1387,7 @@ class GetGroupAndTextPattern(APIView):
         data = request.data   
         dmgroup = DMGroupModel.objects.filter(Q(id = data['id'])).first()         
         resdata = PerDMGroupDmListModel.objects.filter(Q(dmgroup = dmgroup)).values('pk', 'name', 'mailaddress', 'contact_url', 'site_url', 'phone_num', 'auto_manual' )
-        textPatter = DMtextSetModel.objects.filter(Q(user = user)).values('pk', 'title50', 'title25', 'title10', 'text1000', 'text500', 'text250', 'text100', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count')
+        textPatter = DMtextSetModel.objects.filter(Q(user = user)).values('pk','dmTitle', 'title50', 'title25', 'title10', 'text2000', 'text1000', 'text500', 'text250', 'text100', 'recent_send_date', 'sent_count', 'click_rate', 'total_count', 'average_count')
         method = MesurmentMethodSettingModel.objects.filter(Q(user=user)).first()
         textpattern_temp = []
          
@@ -1289,9 +1398,11 @@ class GetGroupAndTextPattern(APIView):
                 link_url = "\n\n\n" + method.click_link +str(tp['pk'])
             textpattern_temp.append({
                 'pk':tp['pk'],
+                'dmTitle':tp['dmTitle'],
                 'title50':tp['title50'],
                 'title25':tp['title25'],
                 'title10':tp['title10'],
+                'text2000':tp['text2000'] + link_url,
                 'text1000':tp['text1000'] + link_url,
                 'text500':tp['text500'] + link_url,
                 'text250':tp['text250'] + link_url,
@@ -1586,6 +1697,7 @@ class WebhookView(APIView):
                 user.paydate = now
                 user.expirydate =now + timedelta(days=30)
                 user.save()
+                print("now is :", now)
 
         if event_type == 'invoice.payment_failed':            
             user = User.objects.filter(Q(customer_id = request.data['data']['object']['customer'])).first()
@@ -1801,9 +1913,9 @@ class GetPaymentStatus(APIView):
     def post(self, request): 
         user = request.user   
 
-        three_dm_texts = DMtextSetModel.objects.all().order_by('-recent_send_date')[:3].values('pk', 'title10', 'sent_count', 'total_count')
-        total_success_count = DMtextSetModel.objects.aggregate(total_success_count=Sum('sent_count'))
-        total_sent_count = DMtextSetModel.objects.aggregate(total_sent_count=Sum('total_count'))
+        three_dm_texts = DMtextSetModel.objects.filter(Q(user=user)).all().order_by('-recent_send_date')[:3].values('pk', 'title10', 'sent_count', 'total_count')
+        total_success_count = DMtextSetModel.objects.filter(Q(user=user)).aggregate(total_success_count=Sum('sent_count'))
+        total_sent_count = DMtextSetModel.objects.filter(Q(user=user)).aggregate(total_sent_count=Sum('total_count'))
 
         print(total_sent_count)
 
@@ -1822,6 +1934,8 @@ class GetPaymentStatus(APIView):
             'total_sent_count':total_sent_count,
             'company':user.coporate_name,
             'company_type':user.company_type,
+            'companyname_position':user.companyname_position,
+            'avatar':user.avatar,
             'option_price':  user.option_price, 
             'username':str(user.firstname_of_charger) + " " + str(user.lastname_of_charger),
             'type': 'successfully',
@@ -1902,6 +2016,7 @@ class GetBasicInfo(APIView):
             'lastname_of_charger_firagana':  user.lastname_of_charger_firagana,         
             'charger_prefecture':  user.charger_prefecture,          
             'choice_word':  user.choice_word,               
+            'companyname_position':  user.companyname_position,               
             'status code': status_code, 
             'type': 'successfully',
         }
@@ -2539,45 +2654,49 @@ def process(d, user, tpattern, all_count):
                         break
                     else: 
                         maxLength = 0
-                        try:
+                        key = textarea['name']
+                        print("key:", key)
+                        
+                        try:                            
                             if str(textarea).find('maxlength="') !=-1: 
-                                maxLength = str(textarea).split('maxlength="')[1]                                 
+                                maxLength = str(textarea).split('maxlength="')[1]                                                                
                                 maxLength = str(maxLength).split('"')[0] 
-                                maxLength = int(maxLength) 
-                                
-                                
-                                if 0 < maxLength <= 100: 
-                                    key = textarea['name']
-                                    value = tpattern['text100']
-                                    formTempData[key] = value 
-
-                                if 100< maxLength < 251: 
-                                    key = textarea['name']
-                                    value = tpattern['text250']
-                                    formTempData[key] = value
-
-                                if 250 < maxLength < 501: 
-                                    key = textarea['name']
-                                    value = tpattern['text500']
-                                    formTempData[key] = value
-
-                                if 500 < maxLength < 1001: 
-                                    key = textarea['name']
-                                    value = tpattern['text1000']
-                                    formTempData[key] = value
-                                
-                                else:
-                                    key = textarea['name']
-                                    value = tpattern['text100']
-                                    formTempData[key] = value 
-
+                                maxLength = int(maxLength)   
+                            else:
+                                maxLength = 3000
                         except:
                             maxLength = 0
 
-                        if maxLength == 0:              
-                            key = textarea['name']
+
+                        print("max", maxLength)
+                        if maxLength == 0:         
                             value = tpattern['text100']
-                            formTempData[key] = value 
+
+                        if 0 < maxLength <= 100:                                     
+                            value = tpattern['text100']
+                            
+
+                        if 100 < maxLength <= 250:  
+                            value = tpattern['text250']
+                            
+
+                        if 250 < maxLength <= 500:  
+                            value = tpattern['text500']    
+                            print("HERE")
+                                                             
+
+                        if 500 < maxLength <= 1000:  
+                            value = tpattern['text1000']
+                            
+
+                        if 1000 < maxLength <= 2000:  
+                            value = tpattern['text2000']     
+
+                        if maxLength == 3000:  
+                            value = tpattern['text2000']   
+
+                        formTempData[key] = value 
+
 
 
                 for select in selects: 
@@ -3153,44 +3272,48 @@ def reserveSendSubFunction(main_data, user, tpattern, browser, specific_day, res
                  
             for textarea in textareas: 
                 maxLength = 0
-                try:
-                    if str(textarea).find('maxlength="') !=-1:
-                        maxLength = str(textarea).split('maxlength="')[1]
-                        maxLength = str(maxLength).split('"')[0]
-                        maxLength = int(maxLength)                         
-
-                        if 0 < maxLength <= 100: 
-                            key = textarea['name']
-                            value = tpattern['text100']
-                            formTempData[key] = value 
-
-                        if 100< maxLength < 251: 
-                            key = textarea['name']
-                            value = tpattern['text250']
-                            formTempData[key] = value
-
-                        if 250 < maxLength < 501: 
-                            key = textarea['name']
-                            value = tpattern['text500']
-                            formTempData[key] = value
-
-                        if 500 < maxLength < 1001: 
-                            key = textarea['name']
-                            value = tpattern['text1000']
-                            formTempData[key] = value
-                        
-                        else:
-                            key = textarea['name']
-                            value = tpattern['text100']
-                            formTempData[key] = value 
-
+                key = textarea['name']
+                print("key:", key)
+                
+                try:                            
+                    if str(textarea).find('maxlength="') !=-1: 
+                        maxLength = str(textarea).split('maxlength="')[1]                                                                
+                        maxLength = str(maxLength).split('"')[0] 
+                        maxLength = int(maxLength)   
+                    else:
+                        maxLength = 3000
                 except:
                     maxLength = 0
 
-                if maxLength == 0:              
-                    key = textarea['name']
+
+                print("max", maxLength)
+                if maxLength == 0:         
+                    value = tpattern['text100']
+
+                if 0 < maxLength <= 100:                                     
+                    value = tpattern['text100']
+                    
+
+                if 100 < maxLength <= 250:  
+                    value = tpattern['text250']
+                    
+
+                if 250 < maxLength <= 500:  
+                    value = tpattern['text500']    
+                    print("HERE")
+                                                        
+
+                if 500 < maxLength <= 1000:  
                     value = tpattern['text1000']
-                    formTempData[key] = value
+                    
+
+                if 1000 < maxLength <= 2000:  
+                    value = tpattern['text2000']     
+
+                if maxLength == 3000:  
+                    value = tpattern['text2000']   
+
+                formTempData[key] = value 
 
 
             for select in selects:                 
@@ -3463,21 +3586,15 @@ def sendManuallySubFunction(data, user, tpattern):
                         checkType = input['type']
                     except:
                         hasType = False
-                    if hasType == True: 
-                        if(input['name'].find("_field_3_confirm")) != -1:
-                                form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})
-
+                    if hasType == True:  
                         if(input['type'] == "email"):                                                               
-                            form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})
-                            print("HERE============", input['type'])
+                            form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})                            
                         
                         if(input['type'] == "text"):
                             if input['name'].find("city") != -1:
-                                print("HERE========city====")
                                 form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_city)})
                             
                             if input['name'].find("chomei") != -1:
-                                print("HERE========chomei====")
                                 form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_address)})
 
                             if input['name'].find("tatemono") != -1:
@@ -3644,15 +3761,55 @@ def sendManuallySubFunction(data, user, tpattern):
                                 checkVal = input['value']
                             except:
                                 hasVal = False
-                            if hasVal:
+                            if hasVal == True:
                                 form_datas.append({"tag":"input", "name":input['name'], "value":input['value']})
-                    else:
-                        if(input['name'].find("_field_3_confirm")) != -1:
-                            form_datas.append({"tag":"input", "name":input['name'], "value":str(user.corporate_mail)})         
+                         
                 
                 for textarea in textareas:  
-                    form_datas.append({"tag":"textarea", "name":textarea['name'], "value":tpattern['text1000']})   
+                    maxLength = 0
+                    key = textarea['name']
+                    value = ""
+                    
+                    try:                            
+                        if str(textarea).find('maxlength="') !=-1: 
+                            maxLength = str(textarea).split('maxlength="')[1]                                                                
+                            maxLength = str(maxLength).split('"')[0] 
+                            maxLength = int(maxLength)   
+                        else:
+                            maxLength = 3000
+                    except:
+                        maxLength = 0
 
+
+                    print("max", maxLength)
+                    if maxLength == 0:         
+                        value = tpattern['text100']
+
+                    if 0 < maxLength <= 100:                                     
+                        value = tpattern['text100']
+                        
+
+                    if 100 < maxLength <= 250:  
+                        value = tpattern['text250']
+                        
+
+                    if 250 < maxLength <= 500:  
+                        value = tpattern['text500']    
+                        print("HERE")
+                                                            
+
+                    if 500 < maxLength <= 1000:  
+                        value = tpattern['text1000']
+                        
+
+                    if 1000 < maxLength <= 2000:  
+                        value = tpattern['text2000']     
+
+                    if maxLength == 3000:  
+                        value = tpattern['text2000']    
+
+                    form_datas.append({"tag":"textarea", "name":textarea['name'], "value":value})   
+                    print(form_datas)
                 for select in selects: 
                     if select['name'].find("state") != -1 \
                         or select['name'].find("pref") != -1: 
@@ -3676,13 +3833,14 @@ def sendManuallySubFunction(data, user, tpattern):
 
                 html_strs.append({"page_html": html_str})            
                 all_form_datas.append({"page_form_data": form_datas})
-                site_urls.append({"page_site_url": site_url})                
+                site_urls.append({"page_site_url": site_url})   
 
                 html_str = ""
                 form_datas = []
                 site_url = ""
 
         except Exception as e:  
+            traceback.print_exc()
             html_strs.append({"page_html": ""})            
             all_form_datas.append({"page_form_data": []})
             site_urls.append({"page_site_url": ""})             
